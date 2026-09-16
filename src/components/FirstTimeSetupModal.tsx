@@ -15,15 +15,15 @@ export const FirstTimeSetupModal: React.FC<FirstTimeSetupModalProps> = ({
   onClearAllData,
   initialSettings,
 }) => {
-  const [dataMode, setDataMode] = useState<'clean' | 'sample'>('clean');
+  const [dataMode, setDataMode] = useState<'clean' | 'sample'>('sample');
   const [formData, setFormData] = useState({
-    shopName: initialSettings.shopName || '',
-    ownerName: initialSettings.ownerName || '',
-    address: initialSettings.address || '',
-    phone: initialSettings.phone || '',
-    gstNumber: initialSettings.gstNumber || '',
-    invoicePrefix: initialSettings.invoicePrefix || 'INV',
-    currencySymbol: initialSettings.currencySymbol || '₹',
+    shopName: initialSettings.shopName || 'Boutique AJOWANU',
+    ownerName: initialSettings.ownerName || 'Bio Gado',
+    address: initialSettings.address || 'Avenue Steinmetz, Tokpa Hoho, Cotonou, Bénin',
+    phone: initialSettings.phone || '+229 97 00 12 34',
+    gstNumber: initialSettings.gstNumber || 'IFU 3202100000000',
+    invoicePrefix: initialSettings.invoicePrefix || 'FACT',
+    currencySymbol: initialSettings.currencySymbol || 'FCFA',
     receiptType: initialSettings.receiptType || 'thermal',
   });
 
@@ -32,7 +32,7 @@ export const FirstTimeSetupModal: React.FC<FirstTimeSetupModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.shopName || !formData.phone) {
-      alert('Please fill in required shop name and phone number.');
+      alert('Veuillez renseigner le nom de la boutique et le numéro de téléphone.');
       return;
     }
 
@@ -49,22 +49,22 @@ export const FirstTimeSetupModal: React.FC<FirstTimeSetupModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111827]/80 backdrop-blur-sm p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl border border-[#ECE5D7] w-full max-w-xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto">
         
-        {/* Banner */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white relative overflow-hidden">
+        {/* Banner AJOWANU Teal */}
+        <div className="bg-[#123F46] p-6 text-white relative overflow-hidden">
           <div className="relative z-10 flex items-center gap-3">
-            <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-xs">
-              <Store className="w-8 h-8 text-white" />
+            <div className="p-3 bg-white/10 rounded-2xl">
+              <Store className="w-8 h-8 text-[#F2C14E]" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Welcome to Offline Grocery POS</h2>
-              <p className="text-xs text-emerald-100 mt-0.5">Set up your grocery shop profile to start managing stock and billing</p>
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <span>Bienvenue sur</span>
+                <span className="text-[#D85C3A] font-extrabold bg-white px-2 py-0.5 rounded-lg text-lg">AJOWANU</span>
+              </h2>
+              <p className="text-xs text-slate-200 mt-0.5">Configurez votre commerce pour démarrer les encaissements et la gestion de stock</p>
             </div>
-          </div>
-          <div className="absolute right-0 bottom-0 opacity-10 font-black text-8xl pointer-events-none select-none">
-            POS
           </div>
         </div>
 
@@ -73,169 +73,143 @@ export const FirstTimeSetupModal: React.FC<FirstTimeSetupModalProps> = ({
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
-                <Store className="w-3.5 h-3.5 text-emerald-600" />
-                Shop Name *
+              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                <Store className="w-3.5 h-3.5 text-[#D85C3A]" />
+                Nom de la Boutique / Commerce *
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Green Valley Supermarket"
+                placeholder="Ex: Boutique AJOWANU Cotonou"
                 value={formData.shopName}
                 onChange={e => setFormData({ ...formData, shopName: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-[#D85C3A] outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
-                <User className="w-3.5 h-3.5 text-emerald-600" />
-                Owner Name *
+              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                <User className="w-3.5 h-3.5 text-[#D85C3A]" />
+                Nom du Gérant / Propriétaire *
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Ramesh Kumar"
+                placeholder="Ex: Bio Gado"
                 value={formData.ownerName}
                 onChange={e => setFormData({ ...formData, ownerName: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-[#D85C3A] outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-              Shop Address
+            <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-[#D85C3A]" />
+              Adresse du Commerce
             </label>
             <input
               type="text"
-              placeholder="e.g. Shop #14, Main Market Road, Bangalore"
+              placeholder="Ex: Avenue Steinmetz, Tokpa Hoho, Cotonou"
               value={formData.address}
               onChange={e => setFormData({ ...formData, address: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-[#D85C3A] outline-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
-                <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                Phone Number *
+              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                <Phone className="w-3.5 h-3.5 text-[#D85C3A]" />
+                Téléphone / WhatsApp *
               </label>
               <input
                 type="text"
                 required
-                placeholder="+91 98765 00000"
+                placeholder="+229 97 00 12 34"
                 value={formData.phone}
                 onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-[#D85C3A] outline-none font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
-                <FileText className="w-3.5 h-3.5 text-emerald-600" />
-                GST Number (Optional)
+              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                <FileText className="w-3.5 h-3.5 text-[#D85C3A]" />
+                N° IFU / RCCM (Optionnel)
               </label>
               <input
                 type="text"
-                placeholder="29XXXXX0000X1Z5"
+                placeholder="IFU 3202100000000"
                 value={formData.gstNumber}
                 onChange={e => setFormData({ ...formData, gstNumber: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-[#D85C3A] outline-none font-mono"
               />
             </div>
           </div>
 
-          <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">
-              Invoice & Print Preferences
+          <div className="pt-2 border-t border-[#ECE5D7]">
+            <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+              Facturation & Monnaie
             </h4>
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                  Prefix
+                <label className="block text-xs font-medium text-slate-600 mb-1">
+                  Préfixe Facture
                 </label>
                 <input
                   type="text"
                   value={formData.invoicePrefix}
                   onChange={e => setFormData({ ...formData, invoicePrefix: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm text-center font-mono"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm text-center font-mono font-bold"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                  Currency Symbol
+                <label className="block text-xs font-medium text-slate-600 mb-1">
+                  Devise
                 </label>
                 <input
                   type="text"
                   value={formData.currencySymbol}
                   onChange={e => setFormData({ ...formData, currencySymbol: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm text-center font-bold"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm text-center font-bold text-[#D85C3A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                  Bill Format
+                <label className="block text-xs font-medium text-slate-600 mb-1">
+                  Format Reçu
                 </label>
                 <select
                   value={formData.receiptType}
                   onChange={e => setFormData({ ...formData, receiptType: e.target.value as any })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-medium"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium"
                 >
-                  <option value="thermal">Thermal (80mm)</option>
-                  <option value="a4">A4 Full Page</option>
+                  <option value="thermal">Ticket thermique (80mm)</option>
+                  <option value="a4">Format A4 complet</option>
                 </select>
               </div>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-2">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              Database Initialization Mode
+          <div className="pt-2 border-t border-[#ECE5D7] space-y-2">
+            <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Mode d'initialisation des données
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label 
                 className={`p-3 rounded-2xl border cursor-pointer transition flex flex-col justify-between space-y-2 ${
-                  dataMode === 'clean' 
-                    ? 'border-emerald-600 bg-emerald-50/80 dark:bg-emerald-950/50 ring-2 ring-emerald-500/20' 
-                    : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-emerald-600" />
-                    Clean Slate (Fresh Start)
-                  </span>
-                  <input
-                    type="radio"
-                    name="dataMode"
-                    value="clean"
-                    checked={dataMode === 'clean'}
-                    onChange={() => setDataMode('clean')}
-                    className="w-4 h-4 accent-emerald-600"
-                  />
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Recommended for real store owners. Starts with empty inventory so you can enter your own real products from scratch.
-                </p>
-              </label>
-
-              <label 
-                className={`p-3 rounded-2xl border cursor-pointer transition flex flex-col justify-between space-y-2 ${
                   dataMode === 'sample' 
-                    ? 'border-emerald-600 bg-emerald-50/80 dark:bg-emerald-950/50 ring-2 ring-emerald-500/20' 
-                    : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50'
+                    ? 'border-[#D85C3A] bg-[#FDF3F0] ring-2 ring-[#D85C3A]/20' 
+                    : 'border-slate-200 bg-slate-50/50'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-                    <Store className="w-4 h-4 text-sky-600" />
-                    Pre-loaded Demo Data
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-[#D85C3A]" />
+                    Données de Démonstration (Bénin)
                   </span>
                   <input
                     type="radio"
@@ -243,31 +217,57 @@ export const FirstTimeSetupModal: React.FC<FirstTimeSetupModalProps> = ({
                     value="sample"
                     checked={dataMode === 'sample'}
                     onChange={() => setDataMode('sample')}
-                    className="w-4 h-4 accent-emerald-600"
+                    className="w-4 h-4 accent-[#D85C3A]"
                   />
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Pre-loads 15 sample grocery items (Atta, Oil, Pulses, Biscuits) for immediate feature testing & software demonstration.
+                <p className="text-[11px] text-slate-500">
+                  Précharge les produits locaux (Riz Parfumé, Huile Mayor, Gari Sohoui, Savon BF) pour explorer immédiatement l'application.
+                </p>
+              </label>
+
+              <label 
+                className={`p-3 rounded-2xl border cursor-pointer transition flex flex-col justify-between space-y-2 ${
+                  dataMode === 'clean' 
+                    ? 'border-[#D85C3A] bg-[#FDF3F0] ring-2 ring-[#D85C3A]/20' 
+                    : 'border-slate-200 bg-slate-50/50'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Store className="w-4 h-4 text-[#123F46]" />
+                    Base Vierge (Démarrage Réel)
+                  </span>
+                  <input
+                    type="radio"
+                    name="dataMode"
+                    value="clean"
+                    checked={dataMode === 'clean'}
+                    onChange={() => setDataMode('clean')}
+                    className="w-4 h-4 accent-[#D85C3A]"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Idéal pour un vrai commerçant. Démarre avec un stock vierge pour saisir directement vos propres produits et prix.
                 </p>
               </label>
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 shrink-0 text-emerald-600" />
+          <div className="p-3 rounded-xl bg-[#F6F1E7] border border-[#ECE5D7] text-slate-800 text-xs flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 shrink-0 text-[#123F46]" />
             <div>
-              <p className="font-semibold">Local SQLite Data Storage</p>
-              <p className="text-[11px] opacity-90">All invoices, product catalogs, and profits will be stored offline on this computer.</p>
+              <p className="font-semibold text-slate-900">Stockage Local 100% Hors-Ligne</p>
+              <p className="text-[11px] text-slate-600">Vos ventes, factures et marges restent confidentielles sur cet ordinateur sans dépendance internet.</p>
             </div>
           </div>
 
           <div className="pt-3 flex justify-end">
             <button
               type="submit"
-              className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-emerald-500/25 transition flex items-center justify-center gap-2 text-sm"
+              className="w-full sm:w-auto px-6 py-3 bg-[#D85C3A] hover:bg-[#C24B2B] text-white font-semibold rounded-2xl shadow-md transition flex items-center justify-center gap-2 text-sm cursor-pointer"
             >
               <CheckCircle2 className="w-5 h-5" />
-              Complete First Time Setup & Open POS
+              <span>Valider & Ouvrir AJOWANU</span>
             </button>
           </div>
 

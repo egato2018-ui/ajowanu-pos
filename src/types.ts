@@ -1,5 +1,6 @@
 /**
- * Types for Offline Grocery Shop Management Software (Enterprise POS)
+ * Types pour AJOWANU — La technologie de votre commerce
+ * Logiciel professionnel de point de vente, caisse et gestion de stock
  */
 
 export interface ShopSettings {

@@ -1,12 +1,50 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Offline Grocery POS & Inventory</title>
-    <meta name="description" content="Desktop POS, Inventory, Billing, and Stock Management System for Grocery Shops" />
-    <meta property="og:title" content="Offline Grocery POS & Inventory" />
-    <meta property="og:description" content="Desktop POS, Inventory, Billing, and Stock Management System for Grocery Shops" />
+    <title>AJOWANU — La technologie de votre commerce</title>
+    <meta name="description" content="AJOWANU — La technologie de votre commerce. Logiciel professionnel de point de vente, caisse et gestion de stock." />
+    <meta property="og:title" content="AJOWANU — La technologie de votre commerce" />
+    <meta property="og:description" content="AJOWANU — Logiciel professionnel de gestion de commerce, point de vente et stock." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          var currentFetch = typeof originalFetch === 'function' ? originalFetch.bind(window) : originalFetch;
+
+          var fetchDescriptor = {
+            get: function() {
+              return currentFetch;
+            },
+            set: function(newFetch) {
+              currentFetch = newFetch;
+            },
+            configurable: true,
+            enumerable: true
+          };
+
+          try {
+            Object.defineProperty(window, 'fetch', fetchDescriptor);
+          } catch (e) {}
+
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            try {
+              Object.defineProperty(Window.prototype, 'fetch', fetchDescriptor);
+            } catch (e) {}
+          }
+
+          if (typeof globalThis !== 'undefined' && globalThis !== window) {
+            try {
+              Object.defineProperty(globalThis, 'fetch', fetchDescriptor);
+            } catch (e) {}
+          }
+        } catch (_) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

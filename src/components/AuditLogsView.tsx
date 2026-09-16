@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
 import { AuditLog, ShopSettings } from '../types';
 import { sqliteDB } from '../db/sqliteStorage';
+import { formatDateTimeFR } from '../utils/formatters';
 import { 
   ShieldCheck, 
-  Search, 
-  Clock, 
-  User, 
-  FileSpreadsheet 
+  Search,
+  Lock,
+  UserCheck
 } from 'lucide-react';
+import { PageHeader } from './ui/PageHeader';
+import { Badge } from './ui/Badge';
+import { EmptyState } from './ui/EmptyState';
 
 interface AuditLogsViewProps {
   settings: ShopSettings;
 }
 
-export const AuditLogsView: React.FC<AuditLogsViewProps> = ({ settings }) => {
-  const [logs, setLogs] = useState<AuditLog[]>(() => sqliteDB.getAuditLogs());
+export const AuditLogsView: React.FC<AuditLogsViewProps> = () => {
+  const [logs] = useState<AuditLog[]>(() => sqliteDB.getAuditLogs());
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredLogs = logs.filter(l => 
@@ -24,62 +27,77 @@ export const AuditLogsView: React.FC<AuditLogsViewProps> = ({ settings }) => {
   );
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-5 sm:p-7 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div>
-        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-          <ShieldCheck className="w-6 h-6 text-emerald-600" />
-          Security Audit Trail & Activity Logs
-        </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Immutable local security audit log recording cash register transactions, stock adjustments, logins, and system changes.
-        </p>
-      </div>
+      <PageHeader
+        title="Journal d'Audit & Sécurité"
+        subtitle="Historique certifié et immuable des ouvertures/clôtures de caisse, modifications de prix, entrées en stock et événements système."
+        icon={<ShieldCheck className="w-5 h-5 text-[#123F46]" />}
+        badge={
+          <Badge variant="teal" size="sm">
+            Registre Immuable
+          </Badge>
+        }
+      />
 
-      {/* Search Input */}
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* Search Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-[#ECE5D7] shadow-xs flex items-center justify-between gap-4">
+        <div className="relative w-full sm:w-96">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search audit logs by user or action..."
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder="Filtrer par caissier, intitulé d'action ou mot-clé..."
+            className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-[#FAF8F5] text-slate-900 focus:outline-none focus:border-[#D85C3A] font-medium"
           />
         </div>
+
+        <span className="text-xs font-mono font-bold text-slate-500 hidden sm:inline-block">
+          {filteredLogs.length} événements répertoriés
+        </span>
       </div>
 
       {/* Audit Log Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-xs">
+      <div className="bg-white rounded-2xl border border-[#ECE5D7] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 font-semibold uppercase tracking-wider text-[10px]">
-                <th className="py-3 px-4">Timestamp</th>
-                <th className="py-3 px-4">Staff Member</th>
-                <th className="py-3 px-4">Action</th>
-                <th className="py-3 px-4">Details</th>
+              <tr className="bg-[#FAF8F5] text-slate-500 border-b border-[#ECE5D7] font-bold uppercase tracking-wider text-[10px]">
+                <th className="py-3 px-4">Horodatage</th>
+                <th className="py-3 px-4">Opérateur / Caissier</th>
+                <th className="py-3 px-4">Nature de l'Action</th>
+                <th className="py-3 px-4">Détails de l'opération</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-slate-700 dark:text-slate-300">
+            <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-8 text-center text-slate-400">
-                    No security audit records logged yet.
+                  <td colSpan={4} className="py-12">
+                    <EmptyState
+                      title="Aucune entrée d'audit trouvée"
+                      description="Toutes les opérations sensibles effectuées sur la caisse ou les stocks apparaîtront dans cette piste d'audit."
+                      icon={<ShieldCheck className="w-6 h-6 text-[#123F46]" />}
+                    />
                   </td>
                 </tr>
               ) : (
                 filteredLogs.map(log => (
-                  <tr key={log.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition font-mono text-[11px]">
-                    <td className="py-3 px-4 text-slate-400">{new Date(log.timestamp).toLocaleString()}</td>
-                    <td className="py-3 px-4 font-bold text-slate-800 dark:text-slate-100">{log.user}</td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 rounded font-semibold text-[10px]">
-                        {log.action}
-                      </span>
+                  <tr key={log.id} className="hover:bg-[#FAF8F5] transition text-xs">
+                    <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px] whitespace-nowrap">
+                      {formatDateTimeFR(log.timestamp)}
                     </td>
-                    <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{log.details}</td>
+                    <td className="py-3.5 px-4 font-bold text-slate-900 whitespace-nowrap">
+                      {log.user}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <Badge variant="neutral" size="sm">
+                        {log.action}
+                      </Badge>
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-600 font-medium">
+                      {log.details}
+                    </td>
                   </tr>
                 ))
               )}

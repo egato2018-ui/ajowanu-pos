@@ -34,7 +34,7 @@ if (!gotTheLock) {
       height: 768,
       minWidth: 1024,
       minHeight: 600,
-      title: 'Grocery POS & Inventory Software',
+      title: 'AJOWANU — La technologie de votre commerce',
       icon: hasIcon ? iconPath : undefined,
       show: false,
       webPreferences: {

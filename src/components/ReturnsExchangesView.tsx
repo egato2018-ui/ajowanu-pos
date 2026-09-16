@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Sale, SaleReturn, ShopSettings, Product } from '../types';
 import { sqliteDB } from '../db/sqliteStorage';
+import { formatFCFA, formatDateFR } from '../utils/formatters';
 import { 
   RotateCcw, 
   Search, 
@@ -29,6 +30,10 @@ import {
   ChevronRight,
   Receipt
 } from 'lucide-react';
+import { PageHeader } from './ui/PageHeader';
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
+import { EmptyState } from './ui/EmptyState';
 
 interface ReturnsExchangesViewProps {
   settings: ShopSettings;
@@ -55,7 +60,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
   onViewInvoice,
   onReturnProcessed
 }) => {
-  const currency = settings.currencySymbol || '₹';
+  const currency = settings.currencySymbol || 'FCFA';
 
   // State Management
   const [sales, setSales] = useState<Sale[]>(() => sqliteDB.getSales());
@@ -102,12 +107,12 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Voice Search Handler (Web Speech API with graceful fallback)
+  // Voice Search Handler
   const toggleVoiceSearch = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert('Voice Search is not supported in this browser environment. Please type your search query.');
+      alert('La recherche vocale n\'est pas supportée sur ce navigateur. Veuillez saisir votre recherche au clavier.');
       return;
     }
 
@@ -120,7 +125,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = 'en-US';
+      recognition.lang = 'fr-FR';
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -134,7 +139,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
       };
 
       recognition.onerror = (event: any) => {
-        console.warn('Voice recognition error:', event.error);
+        console.warn('Erreur reconnaissance vocale :', event.error);
         setIsListening(false);
       };
 
@@ -144,7 +149,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
 
       recognition.start();
     } catch (err) {
-      console.error('Failed to start voice recognition:', err);
+      console.error('Impossible de démarrer la reconnaissance vocale :', err);
       setIsListening(false);
     }
   };
@@ -165,12 +170,9 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
       const productIds = new Set(matchedProductsByBarcode.map(p => p.id));
       barcodeMatchedSales = sales.filter(s => s.items.some(item => productIds.has(item.productId) || item.barcode === query));
     } else {
-      // Direct barcode match inside sale items
       barcodeMatchedSales = sales.filter(s => s.items.some(item => item.barcode && item.barcode.toLowerCase() === query.toLowerCase()));
     }
 
-    // USB Barcode Scanner Auto-Open Rule:
-    // If exact 1 sale contains this barcode, open it automatically!
     if (barcodeMatchedSales.length === 1) {
       openReturnProcessor(barcodeMatchedSales[0]);
       return;
@@ -199,14 +201,13 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
     const q = searchQuery.trim().toLowerCase();
 
     return sales.filter(sale => {
-      // 1. Text Search across Invoice #, Customer Name, Phone, Items, Barcodes, Amount, Cashier
       let matchesSearch = true;
       if (q) {
         const matchInvoice = sale.invoiceNumber.toLowerCase().includes(q);
         const matchCustomer = (sale.customerName || '').toLowerCase().includes(q);
         const matchPhone = (sale.customerPhone || '').toLowerCase().includes(q);
         const matchCashier = (sale.cashierName || '').toLowerCase().includes(q);
-        const matchAmount = sale.totalAmount.toString().includes(q) || `${currency}${sale.totalAmount}`.includes(q);
+        const matchAmount = sale.totalAmount.toString().includes(q) || `${sale.totalAmount} ${currency}`.toLowerCase().includes(q);
         const matchPayment = sale.paymentMode.toLowerCase().includes(q);
         const matchItem = sale.items.some(item => 
           item.productName.toLowerCase().includes(q) || 
@@ -216,7 +217,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
         matchesSearch = matchInvoice || matchCustomer || matchPhone || matchCashier || matchAmount || matchPayment || matchItem;
       }
 
-      // 2. Date Filter
+      // Date Filter
       let matchesDate = true;
       const saleDate = new Date(sale.dateTime);
       const now = new Date();
@@ -242,13 +243,13 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
         matchesDate = saleDate >= start && saleDate <= end;
       }
 
-      // 3. Payment Filter
+      // Payment Filter
       let matchesPayment = true;
       if (paymentFilter !== 'all') {
         matchesPayment = sale.paymentMode === paymentFilter;
       }
 
-      // 4. Status Filter
+      // Status Filter
       let matchesStatus = true;
       if (statusFilter !== 'all') {
         matchesStatus = sale.status === statusFilter;
@@ -269,19 +270,19 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
 
       let reason = '';
       if (sale.invoiceNumber.toLowerCase().includes(q)) {
-        reason = 'Matched Invoice #';
+        reason = 'Facture trouvée';
       } else if ((sale.customerName || '').toLowerCase().includes(q)) {
-        reason = `Customer: ${sale.customerName}`;
+        reason = `Client : ${sale.customerName}`;
       } else if ((sale.customerPhone || '').toLowerCase().includes(q)) {
-        reason = `Phone: ${sale.customerPhone}`;
+        reason = `Tél : ${sale.customerPhone}`;
       } else {
         const matchedItem = sale.items.find(i => 
           i.productName.toLowerCase().includes(q) || (i.barcode && i.barcode.toLowerCase().includes(q))
         );
         if (matchedItem) {
-          reason = `Item: ${matchedItem.productName}`;
+          reason = `Article : ${matchedItem.productName}`;
         } else if (sale.totalAmount.toString().includes(q)) {
-          reason = `Amount: ${currency}${sale.totalAmount}`;
+          reason = `Montant : ${formatFCFA(sale.totalAmount, currency)}`;
         }
       }
 
@@ -289,7 +290,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
         results.push({
           id: sale.id,
           invoiceNumber: sale.invoiceNumber,
-          customerName: sale.customerName || 'Walk-in Customer',
+          customerName: sale.customerName || 'Client Comptant',
           amount: sale.totalAmount,
           dateTime: sale.dateTime,
           matchReason: reason,
@@ -320,8 +321,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
     setDateFilter('all');
     setPaymentFilter('all');
     setStatusFilter('all');
-    // Filter sales with total >= 500
-    setSales(sqliteDB.getSales().filter(s => s.totalAmount >= 500));
+    setSales(sqliteDB.getSales().filter(s => s.totalAmount >= 25000));
   };
 
   const handleLastCustomer = () => {
@@ -329,7 +329,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
     if (all.length > 0 && all[0].customerName) {
       setSearchQuery(all[0].customerName);
     } else {
-      alert('No recent registered customer found.');
+      alert('Aucun client enregistré récemment.');
     }
   };
 
@@ -342,7 +342,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
         openReturnProcessor(all[0]);
       }
     } else {
-      alert('No sales found in history.');
+      alert('Aucune vente enregistrée dans l\'historique.');
     }
   };
 
@@ -360,19 +360,19 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
       }));
 
     if (itemsToReturn.length === 0) {
-      alert('Please select at least 1 item quantity to return.');
+      alert('Veuillez sélectionner au moins 1 article à retourner.');
       return;
     }
 
     const totalRefund = itemsToReturn.reduce((acc, i) => acc + (i.qty * i.unitPrice), 0);
 
-    const retRec = sqliteDB.recordReturn(matchedSale.id, itemsToReturn, totalRefund, returnReason);
+    sqliteDB.recordReturn(matchedSale.id, itemsToReturn, totalRefund, returnReason);
     
     if (onReturnProcessed) {
       onReturnProcessed();
     }
 
-    alert(`Refund Voucher recorded! Total refund of ${currency}${totalRefund} issued & inventory restocked.`);
+    alert(`Bon de retour enregistré ! Remboursement de ${formatFCFA(totalRefund, currency)} validé et articles réintégrés en stock.`);
     
     refreshAll();
 
@@ -380,90 +380,89 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
     setMatchedSale(null);
 
     if (updatedSale && onViewInvoice) {
-      if (confirm('Would you like to view & print the updated return receipt now?')) {
+      if (confirm('Souhaitez-vous imprimer le ticket de caisse actualisé dès maintenant ?')) {
         onViewInvoice(updatedSale);
       }
     }
   };
 
-  // Recent 10 Purchases for quick access
   const recentTenSales = useMemo(() => sales.slice(0, 10), [sales]);
 
+  const reasonLabels: Record<string, string> = {
+    'Defective': 'Produit défectueux / abîmé',
+    'Expired': 'Date de péremption proche ou dépassée',
+    'Wrong Item': 'Mauvais article emporté par erreur',
+    'Customer Changed Mind': 'Changement d\'avis du client',
+  };
+
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      
+    <div className="p-5 sm:p-7 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <RotateCcw className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-            Returns, Exchanges & Refund Center
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Universal multi-search by Invoice #, Customer, Phone, Barcode, Item or Amount. Fast 1-click returns & automatic stock restock!
-          </p>
-        </div>
+      <PageHeader
+        title="Retours, Échanges & Avoirs"
+        subtitle="Recherche universelle par N° de facture, nom du client, téléphone ou code-barres. Réintégration automatique des articles au stock magasin."
+        icon={<RotateCcw className="w-5 h-5 text-[#D85C3A]" />}
+        badge={
+          <div className="flex items-center gap-1 text-[11px] font-mono bg-white border border-[#ECE5D7] px-3 py-1 rounded-xl text-slate-600">
+            <Zap className="w-3.5 h-3.5 text-[#D85C3A]" />
+            <span><strong className="text-slate-900">Ctrl + F</strong> pour chercher</span>
+          </div>
+        }
+      />
 
-        {/* Quick Keyboard Hint */}
-        <div className="flex items-center gap-2 text-[11px] font-mono bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400">
-          <Zap className="w-3.5 h-3.5 text-amber-500" />
-          <span><strong className="text-slate-800 dark:text-slate-200">Ctrl + F</strong> Focus Search</span>
-        </div>
-      </div>
-
-      {/* Quick Actions Bar */}
+      {/* Quick Filter Buttons */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={handleTodaySales}
-          className="px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-semibold border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 shrink-0 transition"
+          className="px-3.5 py-2 bg-[#FDF3F0] hover:bg-[#FBE8E4] text-[#D85C3A] rounded-xl text-xs font-bold border border-[#D85C3A]/25 flex items-center gap-1.5 shrink-0 transition cursor-pointer"
         >
-          <Clock className="w-3.5 h-3.5 text-emerald-600" />
-          Today's Sales
+          <Clock className="w-3.5 h-3.5 text-[#D85C3A]" />
+          Ventes du Jour
         </button>
 
         <button
           onClick={handleRecentInvoices}
-          className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shrink-0 transition"
+          className="px-3.5 py-2 bg-white hover:bg-[#FAF8F5] text-slate-800 rounded-xl text-xs font-bold border border-[#ECE5D7] flex items-center gap-1.5 shrink-0 transition cursor-pointer shadow-xs"
         >
-          <Receipt className="w-3.5 h-3.5 text-sky-500" />
-          Recent Invoices
+          <Receipt className="w-3.5 h-3.5 text-[#123F46]" />
+          Toutes les Factures
         </button>
 
         <button
           onClick={handleHighValueBills}
-          className="px-3.5 py-2 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900 text-amber-800 dark:text-amber-300 rounded-xl text-xs font-semibold border border-amber-200 dark:border-amber-800 flex items-center gap-1.5 shrink-0 transition"
+          className="px-3.5 py-2 bg-[#FEF9EB] hover:bg-[#FDF3D6] text-amber-900 rounded-xl text-xs font-bold border border-[#F2C14E]/50 flex items-center gap-1.5 shrink-0 transition cursor-pointer"
         >
           <Coins className="w-3.5 h-3.5 text-amber-600" />
-          High Value Bills (&ge;{currency}500)
+          Grosses Factures (&ge; 25 000 {currency})
         </button>
 
         <button
           onClick={handleLastCustomer}
-          className="px-3.5 py-2 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-800 dark:text-purple-300 rounded-xl text-xs font-semibold border border-purple-200 dark:border-purple-800 flex items-center gap-1.5 shrink-0 transition"
+          className="px-3.5 py-2 bg-white hover:bg-[#FAF8F5] text-slate-800 rounded-xl text-xs font-bold border border-[#ECE5D7] flex items-center gap-1.5 shrink-0 transition cursor-pointer"
         >
           <User className="w-3.5 h-3.5 text-purple-600" />
-          Last Customer
+          Dernier Client Saisi
         </button>
 
         <button
           onClick={handleRepeatLastBill}
-          className="px-3.5 py-2 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-800 dark:text-indigo-300 rounded-xl text-xs font-semibold border border-indigo-200 dark:border-indigo-800 flex items-center gap-1.5 shrink-0 transition"
+          className="px-3.5 py-2 bg-white hover:bg-[#FAF8F5] text-slate-800 rounded-xl text-xs font-bold border border-[#ECE5D7] flex items-center gap-1.5 shrink-0 transition cursor-pointer"
         >
-          <Eye className="w-3.5 h-3.5 text-indigo-600" />
-          View Last Bill
+          <Eye className="w-3.5 h-3.5 text-[#123F46]" />
+          Afficher Dernière Facture
         </button>
       </div>
 
-      {/* Universal Multi-Search Box with Voice & Barcode Support */}
-      <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs relative">
+      {/* Universal Search Box */}
+      <div className="bg-white p-5 rounded-2xl border border-[#ECE5D7] shadow-xs relative">
         <form onSubmit={handleSearchSubmit} className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="font-bold text-slate-800 dark:text-slate-100 text-sm flex items-center gap-2">
-              <Search className="w-4 h-4 text-emerald-600" />
-              Universal Invoice & Product Barcode Search
+            <label className="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <Search className="w-4 h-4 text-[#D85C3A]" />
+              Recherche Universelle Facture & Code-Barres
             </label>
-            <span className="text-[11px] text-slate-400">
-              Supports Barcode Scanner, Voice Input, Customer Phone & Item Names
+            <span className="text-[11px] text-slate-400 font-medium">
+              Lecteur douchette, dictée vocale, N° facture ou téléphone client
             </span>
           </div>
 
@@ -478,32 +477,30 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
                 setShowSuggestions(true);
               }}
               onFocus={() => setShowSuggestions(true)}
-              placeholder="Scan barcode, type Invoice # (e.g. INV-2026-0001), Customer Name, Mobile #, or Product..."
-              className="w-full pl-10 pr-24 py-3 text-xs sm:text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono font-bold"
+              placeholder="Scannez un code-barres, tapez N° facture (ex: INV-2026-0001), nom du client..."
+              className="w-full pl-10 pr-28 py-3 text-xs sm:text-sm rounded-xl border border-slate-300 bg-[#FAF8F5] text-slate-900 focus:outline-none focus:border-[#D85C3A] font-mono font-bold"
             />
 
-            <div className="absolute right-2 flex items-center gap-1">
-              {/* Voice Search Button */}
+            <div className="absolute right-2 flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={toggleVoiceSearch}
-                title="Voice Search"
-                className={`p-2 rounded-lg text-xs transition ${
+                title="Recherche Vocale"
+                className={`p-2 rounded-xl text-xs transition cursor-pointer ${
                   isListening 
-                    ? 'bg-rose-500 text-white animate-pulse' 
-                    : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300'
+                    ? 'bg-rose-600 text-white animate-pulse' 
+                    : 'bg-[#ECE5D7] text-slate-700 hover:bg-slate-300'
                 }`}
               >
                 {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </button>
 
-              {/* Submit / Find Button */}
               <button
                 type="submit"
-                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1"
+                className="px-3.5 py-2 bg-[#D85C3A] hover:bg-[#C24B2B] text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition cursor-pointer"
               >
                 <Search className="w-3.5 h-3.5" />
-                <span>Search</span>
+                <span>Chercher</span>
               </button>
             </div>
           </div>
@@ -511,10 +508,10 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
 
         {/* Live Search Suggestions Dropdown */}
         {showSuggestions && searchSuggestions.length > 0 && (
-          <div className="absolute left-5 right-5 top-[92px] z-30 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
-            <div className="p-2 bg-slate-50 dark:bg-slate-900 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex justify-between items-center">
-              <span>Matching Invoice Suggestions ({searchSuggestions.length})</span>
-              <span>Click to open or press Enter</span>
+          <div className="absolute left-5 right-5 top-[92px] z-30 bg-white border border-[#ECE5D7] rounded-xl shadow-2xl overflow-hidden divide-y divide-slate-100">
+            <div className="p-2.5 bg-[#FAF8F5] text-[10px] font-bold text-slate-500 uppercase tracking-wider flex justify-between items-center">
+              <span>Factures correspondantes ({searchSuggestions.length})</span>
+              <span>Cliquez pour charger le retour</span>
             </div>
             {searchSuggestions.map(sugg => (
               <button
@@ -525,29 +522,29 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
                   setShowSuggestions(false);
                   openReturnProcessor(sugg.sale);
                 }}
-                className="w-full p-3 text-left hover:bg-emerald-50/70 dark:hover:bg-emerald-950/40 flex items-center justify-between transition group"
+                className="w-full p-3 text-left hover:bg-[#FAF8F5] flex items-center justify-between transition group cursor-pointer"
               >
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400">
+                    <span className="font-mono font-bold text-xs text-[#D85C3A]">
                       {sugg.invoiceNumber}
                     </span>
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    <span className="text-xs font-semibold text-slate-800">
                       {sugg.customerName}
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-500 flex items-center gap-2">
-                    <span className="font-mono">{currency}{sugg.amount}</span>
+                    <span className="font-mono font-bold">{formatFCFA(sugg.amount, currency)}</span>
                     <span>•</span>
-                    <span>{new Date(sugg.dateTime).toLocaleString()}</span>
+                    <span>{formatDateFR(sugg.dateTime)}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-[10px] font-semibold">
+                  <span className="px-2 py-0.5 bg-[#ECE5D7] text-slate-700 rounded text-[10px] font-semibold">
                     {sugg.matchReason}
                   </span>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition" />
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#D85C3A] transition" />
                 </div>
               </button>
             ))}
@@ -556,107 +553,103 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
       </div>
 
       {/* Filter Toolbar */}
-      <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-[#ECE5D7] shadow-xs space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
-            <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
-            <span>Refine Invoices Filter</span>
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+            <SlidersHorizontal className="w-4 h-4 text-[#D85C3A]" />
+            <span>Filtres de Sélection Rapide</span>
           </div>
-          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-            Showing {filteredSales.length} matching invoices
+          <span className="text-xs font-bold text-[#123F46]">
+            {filteredSales.length} factures trouvées
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-          {/* Date Filter */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">Time Period</label>
+            <label className="block text-[11px] font-bold text-slate-500 mb-1">Période temporelle</label>
             <select
               value={dateFilter}
               onChange={e => setDateFilter(e.target.value as DateFilterType)}
-              className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium"
+              className="w-full p-2.5 rounded-xl border border-slate-300 bg-[#FAF8F5] text-slate-900 font-medium focus:outline-none focus:border-[#D85C3A]"
             >
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="yesterday">Yesterday</option>
-              <option value="last7">Last 7 Days</option>
-              <option value="last30">Last 30 Days</option>
-              <option value="custom">Custom Date Range</option>
+              <option value="all">Toutes les dates</option>
+              <option value="today">Aujourd'hui</option>
+              <option value="yesterday">Hier</option>
+              <option value="last7">7 derniers jours</option>
+              <option value="last30">30 derniers jours</option>
+              <option value="custom">Plage personnalisée</option>
             </select>
           </div>
 
-          {/* Payment Method Filter */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">Payment Method</label>
+            <label className="block text-[11px] font-bold text-slate-500 mb-1">Mode de règlement</label>
             <select
               value={paymentFilter}
               onChange={e => setPaymentFilter(e.target.value as PaymentFilterType)}
-              className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium"
+              className="w-full p-2.5 rounded-xl border border-slate-300 bg-[#FAF8F5] text-slate-900 font-medium focus:outline-none focus:border-[#D85C3A]"
             >
-              <option value="all">All Payment Modes</option>
-              <option value="Cash">Cash Only</option>
-              <option value="UPI">UPI Only</option>
-              <option value="Card">Card Only</option>
-              <option value="Credit">Credit Dues</option>
+              <option value="all">Tous les modes</option>
+              <option value="Cash">Espèces uniquement</option>
+              <option value="UPI">Mobile Money (MTN / Moov)</option>
+              <option value="Card">Carte Bancaire</option>
+              <option value="Credit">Crédit client</option>
             </select>
           </div>
 
-          {/* Status Filter */}
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">Sale Status</label>
+            <label className="block text-[11px] font-bold text-slate-500 mb-1">Statut de la facture</label>
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value as StatusFilterType)}
-              className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-medium"
+              className="w-full p-2.5 rounded-xl border border-slate-300 bg-[#FAF8F5] text-slate-900 font-medium focus:outline-none focus:border-[#D85C3A]"
             >
-              <option value="all">All Statuses</option>
-              <option value="Completed">Completed</option>
-              <option value="Refunded">Refunded / Returned</option>
-              <option value="Cancelled">Cancelled</option>
+              <option value="all">Tous les statuts</option>
+              <option value="Completed">Payée / Conclue</option>
+              <option value="Refunded">Remboursée / Retournée</option>
+              <option value="Cancelled">Annulée</option>
             </select>
           </div>
         </div>
 
-        {/* Custom Date Range Inputs */}
         {dateFilter === 'custom' && (
-          <div className="flex gap-3 pt-2 border-t border-slate-100 dark:border-slate-700">
+          <div className="flex gap-3 pt-2 border-t border-[#ECE5D7]">
             <input
               type="date"
               value={customStartDate}
               onChange={e => setCustomStartDate(e.target.value)}
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-slate-50 dark:bg-slate-900"
+              className="p-2 rounded-xl border border-slate-300 text-xs bg-[#FAF8F5]"
             />
-            <span className="self-center text-xs font-bold text-slate-400">to</span>
+            <span className="self-center text-xs font-bold text-slate-400">au</span>
             <input
               type="date"
               value={customEndDate}
               onChange={e => setCustomEndDate(e.target.value)}
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs bg-slate-50 dark:bg-slate-900"
+              className="p-2 rounded-xl border border-slate-300 text-xs bg-[#FAF8F5]"
             />
           </div>
         )}
       </div>
 
-      {/* Active Return Processor Modal / Card */}
+      {/* Active Return Processor Card */}
       {matchedSale && (
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-emerald-500 shadow-xl space-y-4 animate-in fade-in zoom-in duration-150">
-          <div className="flex items-center justify-between border-b pb-3">
+        <div className="bg-white p-6 rounded-2xl border-2 border-[#D85C3A] shadow-xl space-y-4 animate-in fade-in zoom-in duration-150">
+          <div className="flex items-center justify-between border-b border-[#ECE5D7] pb-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-mono font-bold text-sm rounded-lg">
+                <span className="px-2.5 py-1 bg-[#FDF3F0] text-[#D85C3A] font-mono font-bold text-sm rounded-xl border border-[#D85C3A]/20">
                   {matchedSale.invoiceNumber}
                 </span>
-                <span className="text-xs text-slate-500">
-                  {new Date(matchedSale.dateTime).toLocaleString()}
+                <span className="text-xs text-slate-500 font-medium">
+                  {formatDateFR(matchedSale.dateTime)}
                 </span>
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-300 font-semibold mt-1">
-                Customer: {matchedSale.customerName || 'Walk-in Customer'} • Phone: {matchedSale.customerPhone || 'N/A'} • Cashier: {matchedSale.cashierName || 'Store Owner'}
+              <p className="text-xs text-slate-700 font-semibold mt-1">
+                Client : <strong>{matchedSale.customerName || 'Client Comptant'}</strong> • Tél : {matchedSale.customerPhone || 'Non renseigné'} • Caissier : {matchedSale.cashierName || 'Gérant'}
               </p>
             </div>
             <button
               onClick={() => setMatchedSale(null)}
-              className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-400 hover:text-slate-600 transition"
+              className="p-1.5 hover:bg-[#FAF8F5] rounded-lg text-slate-400 hover:text-slate-700 transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -665,31 +658,31 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
           <div className="space-y-4 text-xs">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Reason for Return / Exchange
+                <label className="block font-bold text-slate-700 mb-1">
+                  Motif du Retour / Échange
                 </label>
                 <select
                   value={returnReason}
                   onChange={e => setReturnReason(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-[#FAF8F5] text-slate-900 font-semibold focus:outline-none focus:border-[#D85C3A]"
                 >
-                  <option value="Defective">Defective / Damaged Item</option>
-                  <option value="Expired">Near Expiry / Expired Product</option>
-                  <option value="Wrong Item">Wrong Item Purchased</option>
-                  <option value="Customer Changed Mind">Customer Changed Mind</option>
+                  <option value="Defective">Article défectueux / avarié</option>
+                  <option value="Expired">Produit périmé / date dépassée</option>
+                  <option value="Wrong Item">Erreur d'article ou de référence</option>
+                  <option value="Customer Changed Mind">Changement d'avis du client</option>
                 </select>
               </div>
 
-              <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+              <div className="p-3 bg-[#FAF8F5] rounded-xl border border-[#ECE5D7] flex justify-between items-center">
                 <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Original Bill Total</div>
-                  <div className="text-base font-mono font-bold text-slate-800 dark:text-slate-100">
-                    {currency}{matchedSale.totalAmount}
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Montant Initial Facturé</div>
+                  <div className="text-base font-mono-data font-bold text-slate-900">
+                    {formatFCFA(matchedSale.totalAmount, currency)}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Payment Mode</div>
-                  <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Règlement</div>
+                  <div className="text-xs font-bold text-[#123F46]">
                     {matchedSale.paymentMode}
                   </div>
                 </div>
@@ -697,46 +690,46 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
             </div>
 
             <div className="space-y-2">
-              <p className="font-bold text-slate-800 dark:text-slate-100 flex items-center justify-between">
-                <span>Select Item Quantities to Return:</span>
-                <span className="text-[11px] text-slate-400 font-normal">
-                  Items selected will be returned to store inventory
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-900">Articles à retourner au stock :</span>
+                <span className="text-[11px] text-slate-400">
+                  Les quantités saisies réintégreront l'inventaire
                 </span>
-              </p>
+              </div>
 
-              <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+              <div className="border border-[#ECE5D7] rounded-xl overflow-hidden">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold">
+                  <thead className="bg-[#FAF8F5] text-slate-600 font-bold border-b border-[#ECE5D7]">
                     <tr>
-                      <th className="p-3">Product Name</th>
-                      <th className="p-3 text-center">Purchased Qty</th>
-                      <th className="p-3 text-center">Qty to Return</th>
-                      <th className="p-3 text-right">Unit Price</th>
-                      <th className="p-3 text-right">Subtotal Refund</th>
+                      <th className="p-3">Désignation</th>
+                      <th className="p-3 text-center">Qté Achetée</th>
+                      <th className="p-3 text-center">Qté à Retourner</th>
+                      <th className="p-3 text-right">Prix Unitaire</th>
+                      <th className="p-3 text-right">Total Remboursé</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                  <tbody className="divide-y divide-slate-100">
                     {matchedSale.items.map(item => {
                       const returnQty = selectedItemReturnQty[item.productId] || 0;
                       const subtotalRefund = returnQty * item.unitSellingPrice;
 
                       return (
-                        <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                        <tr key={item.id} className="hover:bg-[#FAF8F5]">
                           <td className="p-3">
-                            <div className="font-semibold text-slate-800 dark:text-slate-100">
+                            <div className="font-bold text-slate-900">
                               {item.productName}
                             </div>
                             {item.barcode && (
                               <div className="text-[10px] font-mono text-slate-400">
-                                Barcode: {item.barcode}
+                                {item.barcode}
                               </div>
                             )}
                           </td>
-                          <td className="p-3 text-center font-bold text-slate-500">
+                          <td className="p-3 text-center font-bold text-slate-500 font-mono-data">
                             {item.quantity}
                           </td>
                           <td className="p-3 text-center">
-                            <div className="flex items-center justify-center gap-1">
+                            <div className="flex items-center justify-center gap-1.5">
                               <button
                                 type="button"
                                 onClick={() => {
@@ -746,7 +739,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
                                     [item.productId]: Math.max(0, current - 1)
                                   }));
                                 }}
-                                className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded font-bold hover:bg-slate-300"
+                                className="w-7 h-7 bg-[#ECE5D7] rounded-lg font-bold hover:bg-slate-300 transition cursor-pointer"
                               >
                                 -
                               </button>
@@ -759,7 +752,7 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
                                   const val = Math.min(item.quantity, Math.max(0, Number(e.target.value)));
                                   setSelectedItemReturnQty(prev => ({ ...prev, [item.productId]: val }));
                                 }}
-                                className="w-12 p-1 border rounded text-center font-bold text-emerald-600 bg-white dark:bg-slate-900"
+                                className="w-14 p-1 border border-slate-300 rounded-lg text-center font-bold font-mono-data text-[#D85C3A] bg-white"
                               />
                               <button
                                 type="button"
@@ -770,17 +763,17 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
                                     [item.productId]: Math.min(item.quantity, current + 1)
                                   }));
                                 }}
-                                className="w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded font-bold hover:bg-slate-300"
+                                className="w-7 h-7 bg-[#ECE5D7] rounded-lg font-bold hover:bg-slate-300 transition cursor-pointer"
                               >
                                 +
                               </button>
                             </div>
                           </td>
-                          <td className="p-3 text-right font-mono text-slate-600 dark:text-slate-300">
-                            {currency}{item.unitSellingPrice}
+                          <td className="p-3 text-right font-mono-data text-slate-600">
+                            {formatFCFA(item.unitSellingPrice, currency)}
                           </td>
-                          <td className="p-3 text-right font-mono font-bold text-rose-600">
-                            {currency}{subtotalRefund}
+                          <td className="p-3 text-right font-mono-data font-bold text-[#D85C3A]">
+                            {formatFCFA(subtotalRefund, currency)}
                           </td>
                         </tr>
                       );
@@ -791,49 +784,51 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
             </div>
 
             {/* Total Refund Summary & Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-[#ECE5D7]">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-semibold">Total Net Refund:</span>
-                <span className="font-bold text-lg text-rose-600 font-mono">
-                  {currency}
-                  {matchedSale.items.reduce((acc, item) => acc + ((selectedItemReturnQty[item.productId] || 0) * item.unitSellingPrice), 0)}
+                <span className="text-xs text-slate-500 font-bold">Montant Total à Rembourser :</span>
+                <span className="font-bold text-lg text-[#D85C3A] font-mono-data">
+                  {formatFCFA(
+                    matchedSale.items.reduce((acc, item) => acc + ((selectedItemReturnQty[item.productId] || 0) * item.unitSellingPrice), 0),
+                    currency
+                  )}
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
                 {onViewInvoice && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    icon={<Eye className="w-4 h-4" />}
                     onClick={() => onViewInvoice(matchedSale)}
-                    className="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition flex items-center gap-1.5"
                   >
-                    <Eye className="w-4 h-4 text-slate-500" />
-                    <span>View Bill</span>
-                  </button>
+                    Voir Ticket
+                  </Button>
                 )}
 
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="md"
+                  icon={<PackageCheck className="w-4 h-4" />}
                   onClick={handleProcessRefund}
-                  className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold shadow-md transition flex items-center gap-2"
                 >
-                  <PackageCheck className="w-4 h-4" />
-                  <span>Issue Refund & Restock Stock</span>
-                </button>
+                  Valider le Remboursement & Réintégrer en Stock
+                </Button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Recent Purchases Quick Access Grid (Latest 10 Sales) */}
-      <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs space-y-3">
+      {/* Recent Purchases Quick Access Grid */}
+      <div className="bg-white p-5 rounded-2xl border border-[#ECE5D7] shadow-xs space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm flex items-center gap-2">
-            <Clock className="w-4 h-4 text-emerald-600" />
-            Recent Purchases & Invoices (Quick Return Click)
+          <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+            <Clock className="w-4 h-4 text-[#D85C3A]" />
+            Dernières Ventes Encaissées (Accès Direct)
           </h3>
-          <span className="text-[11px] text-slate-400">Click any bill to return or view</span>
+          <span className="text-[11px] text-slate-400">Cliquez sur une facture pour initier un retour</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -841,27 +836,27 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
             <div
               key={sale.id}
               onClick={() => openReturnProcessor(sale)}
-              className="p-3 bg-slate-50 dark:bg-slate-900 hover:bg-emerald-50/80 dark:hover:bg-emerald-950/40 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 rounded-xl cursor-pointer transition space-y-1.5 group"
+              className="p-3 bg-[#FAF8F5] hover:bg-white border border-[#ECE5D7] hover:border-[#D85C3A]/50 rounded-xl cursor-pointer transition space-y-1.5 group shadow-2xs"
             >
               <div className="flex items-center justify-between">
-                <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 group-hover:underline">
+                <span className="font-mono font-bold text-xs text-[#D85C3A] group-hover:underline">
                   {sale.invoiceNumber}
                 </span>
-                <span className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-[9px] font-bold">
+                <span className="px-1.5 py-0.5 bg-[#ECE5D7] text-slate-700 rounded text-[9px] font-bold">
                   {sale.paymentMode}
                 </span>
               </div>
 
-              <div className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 truncate">
-                {sale.customerName || 'Walk-in Customer'}
+              <div className="text-[11px] font-semibold text-slate-800 truncate">
+                {sale.customerName || 'Client Comptant'}
               </div>
 
-              <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 dark:border-slate-800 text-[11px]">
-                <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
-                  {currency}{sale.totalAmount}
+              <div className="flex items-center justify-between pt-1 border-t border-[#ECE5D7] text-[11px]">
+                <span className="font-mono-data font-bold text-slate-900">
+                  {formatFCFA(sale.totalAmount, currency)}
                 </span>
                 <span className="text-[10px] text-slate-400">
-                  {sale.items.length} items
+                  {sale.items.length} art.
                 </span>
               </div>
             </div>
@@ -869,180 +864,60 @@ export const ReturnsExchangesView: React.FC<ReturnsExchangesViewProps> = ({
         </div>
       </div>
 
-      {/* Filtered Search Results Grid / Cards */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700 font-bold text-slate-800 dark:text-slate-100 text-sm flex items-center justify-between">
-          <span>Search Results & Sales Invoices ({filteredSales.length})</span>
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="text-xs font-semibold text-rose-600 hover:underline flex items-center gap-1"
-            >
-              <X className="w-3.5 h-3.5" />
-              Clear Search
-            </button>
-          )}
-        </div>
-
-        <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredSales.length === 0 ? (
-            <div className="col-span-full py-12 text-center text-slate-400 text-xs space-y-2">
-              <Search className="w-8 h-8 mx-auto text-slate-300" />
-              <p>No matching sales invoices found. Try adjusting your search keywords or filters.</p>
-            </div>
-          ) : (
-            filteredSales.map(sale => (
-              <div
-                key={sale.id}
-                className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80 space-y-3 hover:shadow-sm transition"
-              >
-                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
-                  <div className="space-y-0.5">
-                    <span className="font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400">
-                      {sale.invoiceNumber}
-                    </span>
-                    <div className="text-[10px] text-slate-400">
-                      {new Date(sale.dateTime).toLocaleString()}
-                    </div>
-                  </div>
-
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                    sale.status === 'Completed'
-                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                      : sale.status === 'Refunded'
-                      ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'
-                      : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-                  }`}>
-                    {sale.status}
-                  </span>
-                </div>
-
-                <div className="text-xs space-y-1 text-slate-700 dark:text-slate-300">
-                  <div className="flex justify-between font-semibold">
-                    <span>Customer:</span>
-                    <span>{sale.customerName || 'Walk-in Customer'}</span>
-                  </div>
-
-                  {sale.customerPhone && (
-                    <div className="flex justify-between text-[11px] text-slate-500">
-                      <span>Phone:</span>
-                      <span className="font-mono">{sale.customerPhone}</span>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between font-semibold">
-                    <span>Cashier:</span>
-                    <span>{sale.cashierName || 'Store Owner'}</span>
-                  </div>
-
-                  <div className="flex justify-between font-mono font-bold text-slate-900 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-slate-800">
-                    <span>Total Amount:</span>
-                    <span>{currency}{sale.totalAmount} ({sale.paymentMode})</span>
-                  </div>
-
-                  {/* Sample Items preview pill tag */}
-                  <div className="pt-1.5 flex flex-wrap gap-1">
-                    {sale.items.map(item => (
-                      <span
-                        key={item.id}
-                        className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded text-[9px] font-medium"
-                      >
-                        {item.productName} ({item.quantity})
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Card Action Buttons */}
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-700/80">
-                  {onViewInvoice && (
-                    <button
-                      type="button"
-                      onClick={() => onViewInvoice(sale)}
-                      className="flex-1 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-slate-500" />
-                      View
-                    </button>
-                  )}
-
-                  {onViewInvoice && (
-                    <button
-                      type="button"
-                      onClick={() => onViewInvoice(sale)}
-                      className="py-1.5 px-3 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 border border-emerald-200 dark:border-emerald-800 transition"
-                      title="Print Invoice"
-                    >
-                      <Printer className="w-3.5 h-3.5 text-emerald-600" />
-                      Print
-                    </button>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={() => openReturnProcessor(sale)}
-                    className="flex-1 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    Return / Refund
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
       {/* Return Vouchers History Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-xs">
-        <div className="p-4 border-b font-bold text-slate-800 dark:text-slate-100 text-sm flex items-center justify-between">
-          <span>Processed Return Vouchers History Log</span>
-          <span className="text-xs font-mono text-slate-400">{returns.length} Total Vouchers</span>
+      <div className="bg-white rounded-2xl border border-[#ECE5D7] overflow-hidden shadow-xs">
+        <div className="p-4 border-b border-[#ECE5D7] font-bold text-slate-900 text-sm flex items-center justify-between">
+          <span>Historique des Bons de Retours & Avoirs Validés</span>
+          <span className="text-xs font-mono font-bold text-slate-500">{returns.length} Avoirs traités</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700 font-semibold uppercase tracking-wider text-[10px]">
-                <th className="py-3 px-4">Return Invoice #</th>
-                <th className="py-3 px-4">Original Invoice</th>
-                <th className="py-3 px-4">Customer</th>
-                <th className="py-3 px-4">Reason</th>
-                <th className="py-3 px-4 text-right">Refund Amount</th>
-                <th className="py-3 px-4 text-center">Actions</th>
+              <tr className="bg-[#FAF8F5] text-slate-500 border-b border-[#ECE5D7] font-bold uppercase tracking-wider text-[10px]">
+                <th className="py-3 px-4">N° Bon d'Avoir</th>
+                <th className="py-3 px-4">Facture Initiale</th>
+                <th className="py-3 px-4">Client</th>
+                <th className="py-3 px-4">Motif</th>
+                <th className="py-3 px-4 text-right">Montant Remboursé</th>
+                <th className="py-3 px-4 text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-slate-700 dark:text-slate-300">
+            <tbody className="divide-y divide-slate-100 text-slate-700">
               {returns.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400">
-                    No return vouchers recorded yet.
+                  <td colSpan={6} className="py-10">
+                    <EmptyState
+                      title="Aucun bon de retour émis"
+                      description="Les retours de marchandises et remboursements clients s'archiveront automatiquement ici."
+                      icon={<RotateCcw className="w-6 h-6 text-[#123F46]" />}
+                    />
                   </td>
                 </tr>
               ) : (
                 returns.map(ret => (
-                  <tr key={ret.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition">
-                    <td className="py-3 px-4 font-mono font-bold text-rose-600">{ret.returnInvoiceNumber}</td>
-                    <td className="py-3 px-4 font-mono font-semibold">{ret.originalInvoiceNumber}</td>
-                    <td className="py-3 px-4">{ret.customerName}</td>
-                    <td className="py-3 px-4 font-medium">{ret.reason}</td>
-                    <td className="py-3 px-4 text-right font-bold text-rose-600 font-mono">
-                      {currency}{ret.refundAmount}
+                  <tr key={ret.id} className="hover:bg-[#FAF8F5] transition">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[#D85C3A]">{ret.returnInvoiceNumber}</td>
+                    <td className="py-3.5 px-4 font-mono font-semibold text-slate-800">{ret.originalInvoiceNumber}</td>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">{ret.customerName}</td>
+                    <td className="py-3.5 px-4 font-medium text-slate-600">{reasonLabels[ret.reason] || ret.reason}</td>
+                    <td className="py-3.5 px-4 text-right font-bold text-[#D85C3A] font-mono-data text-sm">
+                      {formatFCFA(ret.refundAmount, currency)}
                     </td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center">
                       <button
                         onClick={() => {
                           const sale = sqliteDB.getSaleByInvoice(ret.originalInvoiceNumber);
                           if (sale && onViewInvoice) {
                             onViewInvoice(sale);
                           } else {
-                            alert(`Invoice details for ${ret.originalInvoiceNumber} not found.`);
+                            alert(`Détails de la facture ${ret.originalInvoiceNumber} introuvables.`);
                           }
                         }}
-                        className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-lg text-[11px] font-semibold inline-flex items-center gap-1 transition"
+                        className="px-3 py-1.5 bg-[#FAF8F5] hover:bg-[#123F46] hover:text-white text-slate-700 border border-[#ECE5D7] rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition cursor-pointer"
                       >
-                        <Printer className="w-3.5 h-3.5 text-emerald-600" />
-                        Print Bill
+                        <Printer className="w-3.5 h-3.5" />
+                        Ticket
                       </button>
                     </td>
                   </tr>

@@ -1,23 +1,31 @@
 import React from 'react';
 import { DashboardMetrics, Sale, Product, ShopSettings, TabType } from '../types';
+import { formatFCFA } from '../utils/formatters';
 import { 
-  DollarSign, 
   ShoppingBag, 
   TrendingUp, 
   Package, 
   AlertTriangle, 
   Plus, 
-  ArrowUpRight, 
   Receipt, 
-  Layers, 
+  Coins, 
+  CreditCard, 
+  Smartphone, 
+  FileText, 
+  ArrowRight, 
   ShieldCheck, 
   Clock, 
+  Layers,
+  Sparkles,
+  ChevronRight,
   Eye,
-  QrCode,
-  CreditCard,
-  Coins,
-  Wallet
+  CheckCircle2,
+  Calendar
 } from 'lucide-react';
+import { PageHeader } from './ui/PageHeader';
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
+import { Card, CardHeader } from './ui/Card';
 
 interface DashboardViewProps {
   metrics: DashboardMetrics;
@@ -38,7 +46,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onViewInvoice,
   onQuickAddProduct,
 }) => {
-  const currency = settings.currencySymbol || '₹';
+  const currency = settings.currencySymbol || 'FCFA';
 
   // Calculate Today's Payment Mode Breakdown
   const todayStr = new Date().toDateString();
@@ -48,345 +56,255 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const todayCard = todaySales.filter(s => s.paymentMode === 'Card').reduce((acc, s) => acc + s.totalAmount, 0);
   const todayCredit = todaySales.filter(s => s.paymentMode === 'Credit').reduce((acc, s) => acc + s.totalAmount, 0);
 
+  const formattedDate = new Date().toLocaleDateString('fr-FR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-5 sm:p-7 space-y-6 max-w-7xl mx-auto">
       
-      {/* Top Banner & Quick Action Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            Shop Overview & Performance
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Real-time sales, inventory status, and profit tracking from local database.
-          </p>
-        </div>
+      {/* 1. Editorial Welcome Banner */}
+      <div className="bg-white rounded-2xl border border-[#ECE5D7] p-6 shadow-xs relative overflow-hidden">
+        {/* Subtle decorative background accent */}
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-[#FAF8F5] to-transparent pointer-events-none" />
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => onNavigate('pos')}
-            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-xs flex items-center gap-2 shadow-md hover:shadow-emerald-500/20 transition"
-          >
-            <ShoppingBag className="w-4 h-4" />
-            <span>Open Billing Counter (F2)</span>
-          </button>
-
-          <button
-            onClick={() => onNavigate('stock_in')}
-            className="px-3.5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-medium text-xs flex items-center gap-1.5 shadow-sm transition"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Incoming Stock</span>
-          </button>
-
-          <button
-            onClick={onQuickAddProduct}
-            className="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-medium text-xs flex items-center gap-1.5 transition"
-          >
-            <Package className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>New Product Item</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        {/* Today Sales */}
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Today's Revenue
-            </span>
-            <div className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
-              <DollarSign className="w-5 h-5" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-[#D85C3A] uppercase tracking-wider">
+                Commerce Opérationnel
+              </span>
+              <span className="text-slate-300">•</span>
+              <span className="text-xs text-slate-500 capitalize flex items-center gap-1 font-medium">
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                {formattedDate}
+              </span>
             </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl font-black text-slate-900 dark:text-slate-100 font-mono">
-              {currency}{metrics.todaySalesAmount.toLocaleString()}
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-              <Receipt className="w-3.5 h-3.5 text-emerald-600" />
-              <span><strong>{metrics.todaySalesCount}</strong> completed transactions today</span>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Bonjour, {settings.ownerName ? `${settings.ownerName}` : 'Gérant'} — {settings.shopName}
+            </h1>
+            <p className="text-xs text-slate-500 max-w-2xl leading-relaxed">
+              Vos transactions, encaissements et niveaux de stock sont traités en temps réel et stockés localement sur votre terminal.
             </p>
           </div>
-        </div>
 
-        {/* Today Profit */}
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Today's Net Profit
-            </span>
-            <div className="p-2.5 rounded-xl bg-teal-100 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl font-black text-slate-900 dark:text-slate-100 font-mono">
-              {currency}{metrics.todayProfit.toLocaleString()}
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Overall Profit: <strong className="text-teal-600 dark:text-teal-400">{currency}{metrics.totalProfitAllTime.toLocaleString()}</strong>
-            </p>
-          </div>
-        </div>
-
-        {/* Total Products & Available Stock */}
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Total Products / Items
-            </span>
-            <div className="p-2.5 rounded-xl bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400">
-              <Package className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl font-black text-slate-900 dark:text-slate-100 font-mono">
-              {metrics.totalProductsCount} <span className="text-xs font-normal text-slate-500">SKUs</span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-              <Layers className="w-3.5 h-3.5 text-sky-600" />
-              <span>Available Stock Qty: <strong>{metrics.totalAvailableStock}</strong> units</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Low Stock Warning */}
-        <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Low Stock Alert
-            </span>
-            <div className={`p-2.5 rounded-xl ${
-              metrics.lowStockCount > 0 ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600' : 'bg-slate-100 dark:bg-slate-700 text-slate-400'
-            }`}>
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <div className="text-2xl font-black text-slate-900 dark:text-slate-100 font-mono flex items-center gap-2">
-              {metrics.lowStockCount}
-              {metrics.lowStockCount > 0 && (
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200">
-                  Needs Reorder
-                </span>
-              )}
-            </div>
-            <button
-              onClick={() => onNavigate('products')}
-              className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline mt-1 inline-flex items-center gap-1 font-medium"
+          {/* Direct POS & Stock shortcuts */}
+          <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+            <Button
+              variant="primary"
+              size="md"
+              icon={<ShoppingBag className="w-4 h-4" />}
+              onClick={() => onNavigate('pos')}
             >
-              View Inventory Table <ArrowUpRight className="w-3 h-3" />
-            </button>
-          </div>
-        </div>
+              Caisse Directe (F2)
+            </Button>
 
-      </div>
+            <Button
+              variant="secondary"
+              size="md"
+              icon={<Plus className="w-4 h-4" />}
+              onClick={() => onNavigate('stock_in')}
+            >
+              Réception Stock
+            </Button>
 
-      {/* Today's Payment Collection Breakdown Grid */}
-      <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs space-y-3">
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2.5">
-          <div className="flex items-center gap-2">
-            <Coins className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">
-              Today's Payment Collections & Distribution
-            </h3>
-          </div>
-          <span className="text-xs text-slate-500 font-mono font-bold">
-            Total Revenue: {currency}{metrics.todaySalesAmount.toLocaleString()}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {/* Today Cash */}
-          <div className="p-3 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-xl space-y-1">
-            <div className="flex items-center justify-between text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-              <span>Today's Cash</span>
-              <Coins className="w-4 h-4 text-emerald-600" />
-            </div>
-            <div className="text-lg font-mono font-bold text-slate-900 dark:text-slate-100">
-              {currency}{todayCash.toLocaleString()}
-            </div>
-            <p className="text-[10px] text-slate-500">In Cash Drawer</p>
-          </div>
-
-          {/* Today UPI */}
-          <div className="p-3 bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/60 rounded-xl space-y-1">
-            <div className="flex items-center justify-between text-xs font-semibold text-purple-800 dark:text-purple-300">
-              <span>Today's UPI</span>
-              <QrCode className="w-4 h-4 text-purple-600" />
-            </div>
-            <div className="text-lg font-mono font-bold text-slate-900 dark:text-slate-100">
-              {currency}{todayUpi.toLocaleString()}
-            </div>
-            <p className="text-[10px] text-slate-500">Dynamic QR Payments</p>
-          </div>
-
-          {/* Today Card */}
-          <div className="p-3 bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800/60 rounded-xl space-y-1">
-            <div className="flex items-center justify-between text-xs font-semibold text-sky-800 dark:text-sky-300">
-              <span>Today's Card</span>
-              <CreditCard className="w-4 h-4 text-sky-600" />
-            </div>
-            <div className="text-lg font-mono font-bold text-slate-900 dark:text-slate-100">
-              {currency}{todayCard.toLocaleString()}
-            </div>
-            <p className="text-[10px] text-slate-500">POS Machine</p>
-          </div>
-
-          {/* Today Credit */}
-          <div className="p-3 bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl space-y-1">
-            <div className="flex items-center justify-between text-xs font-semibold text-amber-800 dark:text-amber-300">
-              <span>Today's Credit</span>
-              <Wallet className="w-4 h-4 text-amber-600" />
-            </div>
-            <div className="text-lg font-mono font-bold text-slate-900 dark:text-slate-100">
-              {currency}{todayCredit.toLocaleString()}
-            </div>
-            <p className="text-[10px] text-slate-500">Customer Dues</p>
+            <Button
+              variant="outline"
+              size="md"
+              icon={<Package className="w-4 h-4 text-[#D85C3A]" />}
+              onClick={onQuickAddProduct}
+            >
+              Nouvel Article
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Grid: Low Stock Alert List & Recent Transactions */}
+      {/* 2. Structured Commercial Cockpit (Asymmetric 2-column layout) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Recent Bills (2 Columns) */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">
-                  Recent Invoices & Transactions
+        {/* Left 2 Cols: Primary Financial Performance & Payment Distribution */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Performance Summary Duo */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            {/* Primary KPI 1: Chiffre d'affaires du jour */}
+            <div className="bg-white rounded-2xl border border-[#ECE5D7] p-6 shadow-xs relative overflow-hidden flex flex-col justify-between">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Chiffre d'Affaires du Jour
+                  </span>
+                  <div className="text-3xl font-black text-slate-900 font-mono-data mt-2">
+                    {formatFCFA(metrics.todaySalesAmount, currency)}
+                  </div>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-[#FDF3F0] text-[#D85C3A] flex items-center justify-center shrink-0 border border-[#D85C3A]/20">
+                  <Coins className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-[#ECE5D7] flex items-center justify-between text-xs">
+                <span className="text-slate-500 flex items-center gap-1.5 font-medium">
+                  <Receipt className="w-3.5 h-3.5 text-[#D85C3A]" />
+                  <strong className="text-slate-800">{metrics.todaySalesCount}</strong> vente(s) enregistrée(s)
+                </span>
+                <span className="text-slate-400 font-mono text-[11px]">Aujourd'hui</span>
+              </div>
+            </div>
+
+            {/* Primary KPI 2: Marge Nette Réalisée */}
+            <div className="bg-white rounded-2xl border border-[#ECE5D7] p-6 shadow-xs relative overflow-hidden flex flex-col justify-between">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Bénéfice Net Estimé
+                  </span>
+                  <div className="text-3xl font-black text-[#123F46] font-mono-data mt-2">
+                    {formatFCFA(metrics.todayProfit, currency)}
+                  </div>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-[#E8F1F2] text-[#123F46] flex items-center justify-center shrink-0 border border-[#123F46]/20">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-[#ECE5D7] flex items-center justify-between text-xs">
+                <span className="text-slate-500 font-medium truncate">
+                  Cumul total : <strong className="text-slate-800 font-mono-data">{formatFCFA(metrics.totalProfitAllTime, currency)}</strong>
+                </span>
+                <span className="text-slate-400 font-mono text-[11px]">Historique</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Mode Repartition (Espèces vs Mobile Money vs Carte vs Crédit) */}
+          <div className="bg-white rounded-2xl border border-[#ECE5D7] p-5 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[#ECE5D7] pb-3">
+              <div>
+                <h3 className="font-bold text-sm text-slate-900">
+                  Répartition des Règlements du Jour
                 </h3>
+                <p className="text-[11px] text-slate-400">
+                  Ventilation par mode d'encaissement
+                </p>
+              </div>
+              <Badge variant="teal" size="sm">
+                Caisse Active
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* Cash */}
+              <div className="p-3.5 bg-[#FAF8F5] rounded-xl border border-[#ECE5D7]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-semibold text-slate-600 flex items-center gap-1.5">
+                    <Coins className="w-3.5 h-3.5 text-[#123F46]" />
+                    Espèces
+                  </span>
+                </div>
+                <div className="text-base font-bold font-mono-data text-slate-900">
+                  {formatFCFA(todayCash, currency)}
+                </div>
+              </div>
+
+              {/* Mobile Money / QR */}
+              <div className="p-3.5 bg-[#FAF8F5] rounded-xl border border-[#ECE5D7]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-semibold text-slate-600 flex items-center gap-1.5">
+                    <Smartphone className="w-3.5 h-3.5 text-[#D85C3A]" />
+                    MoMo / QR
+                  </span>
+                </div>
+                <div className="text-base font-bold font-mono-data text-slate-900">
+                  {formatFCFA(todayUpi, currency)}
+                </div>
+              </div>
+
+              {/* Card */}
+              <div className="p-3.5 bg-[#FAF8F5] rounded-xl border border-[#ECE5D7]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-semibold text-slate-600 flex items-center gap-1.5">
+                    <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                    Carte
+                  </span>
+                </div>
+                <div className="text-base font-bold font-mono-data text-slate-900">
+                  {formatFCFA(todayCard, currency)}
+                </div>
+              </div>
+
+              {/* Credit / Arrears */}
+              <div className="p-3.5 bg-[#FAF8F5] rounded-xl border border-[#ECE5D7]">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-semibold text-slate-600 flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-amber-600" />
+                    À Crédit
+                  </span>
+                </div>
+                <div className="text-base font-bold font-mono-data text-slate-900">
+                  {formatFCFA(todayCredit, currency)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Sales Activity Feed */}
+          <div className="bg-white rounded-2xl border border-[#ECE5D7] p-5 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[#ECE5D7] pb-3">
+              <div>
+                <h3 className="font-bold text-sm text-slate-900">
+                  Dernières Ventes Enregistrées
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                  Transactions récentes au comptoir
+                </p>
               </div>
               <button
                 onClick={() => onNavigate('sales_history')}
-                className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                className="text-xs font-bold text-[#D85C3A] hover:underline flex items-center gap-1 cursor-pointer"
               >
-                View Full Sales History <ArrowUpRight className="w-3.5 h-3.5" />
+                Voir tout l'historique
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
             {recentSales.length === 0 ? (
-              <div className="text-center py-10 text-slate-400 dark:text-slate-500 space-y-2">
-                <Receipt className="w-10 h-10 mx-auto stroke-1 opacity-60" />
-                <p className="text-sm font-medium">No sales recorded yet today.</p>
-                <p className="text-xs">Click "Open Billing Counter" to process your first customer transaction.</p>
+              <div className="text-center py-8 text-slate-400 text-xs">
+                Aucune vente enregistrée pour le moment.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 dark:border-slate-700 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                      <th className="pb-2.5">Invoice #</th>
-                      <th className="pb-2.5">Time</th>
-                      <th className="pb-2.5">Customer</th>
-                      <th className="pb-2.5 text-center">Items</th>
-                      <th className="pb-2.5 text-right">Amount</th>
-                      <th className="pb-2.5 text-center">Mode</th>
-                      <th className="pb-2.5 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
-                    {recentSales.slice(0, 6).map((sale) => (
-                      <tr key={sale.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-                        <td className="py-3 font-mono font-bold text-slate-800 dark:text-slate-200">
+              <div className="divide-y divide-[#ECE5D7]">
+                {recentSales.slice(0, 5).map((sale) => (
+                  <div key={sale.id} className="py-3 flex items-center justify-between gap-4 hover:bg-[#FAF8F5] px-2 rounded-xl transition">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-xs font-mono text-slate-900">
                           {sale.invoiceNumber}
-                        </td>
-                        <td className="py-3 text-slate-500 dark:text-slate-400">
-                          {new Date(sale.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </td>
-                        <td className="py-3 font-medium text-slate-700 dark:text-slate-300">
-                          {sale.customerName || 'Walk-in Customer'}
-                        </td>
-                        <td className="py-3 text-center">
-                          <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 font-mono text-[11px]">
-                            {sale.items.length}
-                          </span>
-                        </td>
-                        <td className="py-3 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                          {currency}{sale.totalAmount}
-                        </td>
-                        <td className="py-3 text-center">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                            sale.paymentMode === 'Cash'
-                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                              : sale.paymentMode === 'UPI'
-                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
-                              : 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300'
-                          }`}>
-                            {sale.paymentMode}
-                          </span>
-                        </td>
-                        <td className="py-3 text-right">
-                          <button
-                            onClick={() => onViewInvoice(sale)}
-                            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-slate-600 dark:text-slate-300 transition"
-                            title="View / Print Invoice"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Low Stock Urgent Reorder Panel (1 Column) */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-500" />
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">
-                  Low Stock Products
-                </h3>
-              </div>
-              <span className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 px-2 py-0.5 rounded-full font-bold">
-                {lowStockProducts.length} items
-              </span>
-            </div>
-
-            {lowStockProducts.length === 0 ? (
-              <div className="text-center py-10 text-slate-400 dark:text-slate-500 space-y-2">
-                <ShieldCheck className="w-10 h-10 mx-auto stroke-1 text-emerald-500" />
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Stock Levels Healthy!</p>
-                <p className="text-xs">All inventory items are above the minimum threshold limit.</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
-                {lowStockProducts.slice(0, 6).map((product) => (
-                  <div
-                    key={product.id}
-                    className="p-3 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/50 flex items-center justify-between"
-                  >
-                    <div>
-                      <h4 className="font-semibold text-xs text-slate-800 dark:text-slate-200 line-clamp-1">
-                        {product.name}
-                      </h4>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        Supplier: {product.supplierName || 'General'}
+                        </span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#FAF8F5] text-slate-600 border border-[#ECE5D7] font-semibold">
+                          {sale.paymentMode}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                        {sale.customerName || 'Client Comptoir'} • {sale.items.length} article(s) • {new Date(sale.dateTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
 
-                    <div className="text-right shrink-0">
-                      <div className="text-xs font-bold text-rose-600 dark:text-rose-400 font-mono">
-                        {product.quantity} left
-                      </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-sm font-bold font-mono-data text-slate-900">
+                        {formatFCFA(sale.totalAmount, currency)}
+                      </span>
                       <button
-                        onClick={() => onNavigate('stock_in')}
-                        className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline mt-0.5 block"
+                        onClick={() => onViewInvoice(sale)}
+                        className="p-1.5 rounded-lg bg-[#FAF8F5] hover:bg-[#ECE5D7] text-slate-700 transition cursor-pointer border border-[#ECE5D7]"
+                        title="Voir la facture / ticket"
                       >
-                        + Add Stock
+                        <Eye className="w-3.5 h-3.5 text-[#123F46]" />
                       </button>
                     </div>
                   </div>
@@ -394,16 +312,96 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             )}
           </div>
+        </div>
 
-          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-            <span>Threshold: &le; {settings.lowStockThreshold} units</span>
-            <button
-              onClick={() => onNavigate('settings')}
-              className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
-            >
-              Configure Limit
-            </button>
+        {/* Right 1 Col: Operational Alerts & Stock Health */}
+        <div className="space-y-6">
+          
+          {/* Inventory Valuation Card */}
+          <div className="bg-white rounded-2xl border border-[#ECE5D7] p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Inventaire & Stock
+              </span>
+              <div className="w-8 h-8 rounded-xl bg-[#FAF8F5] text-[#123F46] flex items-center justify-center border border-[#ECE5D7]">
+                <Layers className="w-4 h-4" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div>
+                <span className="text-[11px] text-slate-400">Valeur marchande en rayon</span>
+                <div className="text-xl font-bold font-mono-data text-slate-900">
+                  {formatFCFA(metrics.totalStockValue, currency)}
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-[#ECE5D7] flex items-center justify-between text-xs text-slate-500">
+                <span>Références actives</span>
+                <strong className="text-slate-800 font-mono-data">{metrics.totalProductsCount}</strong>
+              </div>
+            </div>
           </div>
+
+          {/* Operational Low Stock Alert Card */}
+          <div className="bg-white rounded-2xl border border-[#ECE5D7] p-5 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[#ECE5D7] pb-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-[#D85C3A]" />
+                <h3 className="font-bold text-sm text-slate-900">
+                  Alertes Réapprovisionnement
+                </h3>
+              </div>
+              <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-[#FEF9EB] text-[#B47805] border border-[#F2C14E]/60 font-mono">
+                {lowStockProducts.length}
+              </span>
+            </div>
+
+            {lowStockProducts.length === 0 ? (
+              <div className="p-4 text-center text-xs text-emerald-700 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Tous les articles sont au-dessus du seuil d'alerte.</span>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {lowStockProducts.slice(0, 5).map((p) => (
+                  <div key={p.id} className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#ECE5D7] flex items-center justify-between gap-3 text-xs">
+                    <div className="min-w-0">
+                      <p className="font-bold text-slate-900 truncate">{p.name}</p>
+                      <p className="text-[10px] text-slate-500 font-mono">Réf: {p.barcode || 'N/A'}</p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="px-2 py-0.5 rounded font-bold font-mono text-[10px] bg-amber-100 text-amber-900 border border-amber-300">
+                        {p.quantity} restant(s)
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full mt-2"
+                  onClick={() => onNavigate('stock_in')}
+                >
+                  Entrer du stock maintenant
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Quick System Integrity Badge */}
+          <div className="p-4 bg-[#FAF8F5] rounded-2xl border border-[#ECE5D7] space-y-2 text-xs">
+            <div className="flex items-center gap-2 text-slate-800 font-bold">
+              <ShieldCheck className="w-4 h-4 text-[#123F46]" />
+              <span>Base Locale SQLite & Données</span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Le moteur SQLite local enregistre chaque vente de manière atomique. Aucune dépendance internet requise.
+            </p>
+          </div>
+
         </div>
 
       </div>

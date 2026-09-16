@@ -59,33 +59,33 @@ const STORAGE_KEYS = {
 export const INITIAL_SAMPLE_BRANCHES: Branch[] = [
   {
     id: 'BRANCH-01',
-    name: 'Main Supermarket Branch',
-    code: 'MAIN',
-    address: 'Shop No. 12, Main Market Road, Sector 4, Bangalore',
-    phone: '+91 98765 00000',
+    name: 'Boutique Principale - Tokpa',
+    code: 'TOKPA',
+    address: 'Avenue Steinmetz, Tokpa Hoho, Cotonou, Bénin',
+    phone: '+229 97 00 12 34',
     isPrimary: true,
   },
   {
     id: 'BRANCH-02',
-    name: 'MG Road Express Store',
-    code: 'MGROAD',
-    address: 'No. 45, MG Road Commercial Hub, Bangalore',
-    phone: '+91 98765 00001',
+    name: 'Point de Vente - Cadjehoun',
+    code: 'CADJEHOUN',
+    address: 'Carrefour Cadjehoun, Cotonou, Bénin',
+    phone: '+229 95 12 34 56',
     isPrimary: false,
   }
 ];
 
 export const INITIAL_SAMPLE_CATEGORIES: CategoryNode[] = [
-  { id: 'CAT-1', name: 'Grains & Atta', description: 'Flours, rice, wheat and grains' },
-  { id: 'CAT-2', name: 'Oils & Ghee', description: 'Cooking oils, mustard oil, pure ghee' },
-  { id: 'CAT-3', name: 'Rice & Pulses', description: 'Basmati rice, sona masoori, lentils' },
-  { id: 'CAT-4', name: 'Spices & Salt', description: 'Powdered spices, whole spices, rock salt' },
-  { id: 'CAT-5', name: 'Beverages', description: 'Tea, coffee, juices, soft drinks' },
-  { id: 'CAT-6', name: 'Dairy & Bakery', description: 'Milk, butter, cheese, bread' },
-  { id: 'CAT-7', name: 'Snacks & Biscuits', description: 'Cookies, chips, namkeen' },
-  { id: 'CAT-8', name: 'Household', description: 'Detergents, soaps, cleaners' },
-  { id: 'CAT-9', name: 'Personal Care', description: 'Shampoos, soaps, toothpaste' },
-  { id: 'CAT-10', name: 'Combos & Packs', description: 'Special festival and daily bundles' }
+  { id: 'CAT-1', name: 'Riz, Pâtes & Féculents', description: 'Riz parfumé, brisures, spaghetti, couscous' },
+  { id: 'CAT-2', name: 'Huiles & Condiments', description: 'Huile végétale, huile de palme raffinée, vinaigre' },
+  { id: 'CAT-3', name: 'Conserves & Tomates', description: 'Tomate concentrée en boîte, sardines, petits pois' },
+  { id: 'CAT-4', name: 'Épices & Assaisonnements', description: 'Sel iodé, bouillons, poivre, piment, arômes' },
+  { id: 'CAT-5', name: 'Boissons & Jus', description: 'Eaux minérales, boissons gazeuses, jus de fruits' },
+  { id: 'CAT-6', name: 'Lait & Petit Déjeuner', description: 'Lait en poudre, café, thé, chocolat, sucre' },
+  { id: 'CAT-7', name: 'Biscuits & Confiseries', description: 'Biscuits secs, gaufrettes, bonbons, snacks' },
+  { id: 'CAT-8', name: 'Entretien & Lessive', description: 'Savons en poudre, savons durs, eau de javel' },
+  { id: 'CAT-9', name: 'Hygiène & Soins', description: 'Dentifrices, savons de toilette, crèmes' },
+  { id: 'CAT-10', name: 'Paniers & Packs Éco', description: 'Offres promotionnelles et packs ménagers' }
 ];
 
 export const UNIT_CONVERSIONS: UnitConversion[] = [
@@ -93,35 +93,35 @@ export const UNIT_CONVERSIONS: UnitConversion[] = [
   { fromUnit: 'g', toUnit: 'kg', factor: 0.001 },
   { fromUnit: 'litre', toUnit: 'ml', factor: 1000 },
   { fromUnit: 'ml', toUnit: 'litre', factor: 0.001 },
-  { fromUnit: 'sack', toUnit: 'kg', factor: 50 },
-  { fromUnit: 'box', toUnit: 'pcs', factor: 10 },
-  { fromUnit: 'packet', toUnit: 'pcs', factor: 1 }
+  { fromUnit: 'sac', toUnit: 'kg', factor: 25 },
+  { fromUnit: 'carton', toUnit: 'pcs', factor: 24 },
+  { fromUnit: 'paquet', toUnit: 'pcs', factor: 1 }
 ];
 
 export const INITIAL_SAMPLE_UPDATES: UpdatePackage[] = [
   {
-    version: '2.0.0 Commercial',
-    releaseDate: '2026-07-28',
+    version: '1.0.0 AJOWANU',
+    releaseDate: '2026-09-16',
     releaseNotes: [
-      'Added Multi-Branch support architecture',
-      'Implemented FIFO Batch & Lot expiry warnings',
-      'Added Cash Register drawer shifts & daily reconciliation',
-      'Added Smart Reorder calculations and printable reports',
-      'Full offline performance and diagnostics health monitor'
+      'Intégration officielle de la plateforme AJOWANU',
+      'Localisation complète pour le commerce au Bénin et en Afrique',
+      'Monnaie standard FCFA et conformité facturation IFU',
+      'Gestion hors-ligne native de la caisse et du stock',
+      'Compatibilité paiements Mobile Money & QR'
     ],
     isApplied: true,
   }
 ];
 
-// Initial default shop settings
+// Configuration initiale par défaut AJOWANU
 export const DEFAULT_SETTINGS: ShopSettings = {
-  shopName: 'Green Grocery & Supermarket',
-  ownerName: 'Rajesh Kumar',
-  address: 'Shop No. 12, Main Market Road, Sector 4, Bangalore - 560001',
-  phone: '+91 98765 00000',
-  gstNumber: '29XXXXX0000X1Z5',
-  invoicePrefix: 'INV',
-  currencySymbol: '₹',
+  shopName: 'Boutique AJOWANU',
+  ownerName: 'Koffi Mensah',
+  address: 'Avenue Steinmetz, Tokpa Hoho, Cotonou, Bénin',
+  phone: '+229 97 00 12 34',
+  gstNumber: 'IFU 3202100000000',
+  invoicePrefix: 'FACT',
+  currencySymbol: 'FCFA',
   defaultTaxPercent: 0,
   lowStockThreshold: 10,
   receiptType: 'thermal',
@@ -133,252 +133,478 @@ export const DEFAULT_SETTINGS: ShopSettings = {
   requireManagerPinForDiscount: true,
   discountThresholdPercent: 15,
   enableLoyalty: true,
-  loyaltyPointRatio: 100, // 1 pt per ₹100
-  // UPI Payment Default Settings
+  loyaltyPointRatio: 1000, // 1 pt par 1 000 FCFA
+  // Paramètres Paiement Mobile Money & QR
   enableUpiPayments: true,
-  merchantName: 'Green Grocery & Supermarket',
-  upiId: 'merchant@upi',
-  defaultPaymentNote: 'Thank you for shopping at Green Grocery!',
-  upiReceiptFooter: 'QR Payment Completed via Dynamic UPI',
+  merchantName: 'Boutique AJOWANU',
+  upiId: '+229 97 00 12 34',
+  defaultPaymentNote: 'Paiement Boutique AJOWANU',
+  upiReceiptFooter: 'Paiement Mobile Money / QR Encaissé avec succès',
   merchantLogo: '',
 };
 
-// Initial sample grocery products for immediate testing
+// Catalogue initial de produits pour démonstration immédiate au Bénin
 export const INITIAL_SAMPLE_PRODUCTS: Product[] = [
   {
     id: 'PRD-1001',
-    name: 'Fortune Sunlite Sunflower Oil 1L',
-    category: 'Oils & Ghee',
-    barcode: '8901234001011',
-    purchasePrice: 135,
-    sellingPrice: 160,
-    quantity: 45,
-    supplierName: 'Fortune Distributors',
-    expiryDate: '2027-01-15',
-    unit: 'packet',
-    shelfLocation: 'Rack A - Shelf 2',
-    imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=300&q=80',
+    name: 'Riz Parfumé 25 kg',
+    category: 'Riz, Pâtes & Féculents',
+    barcode: '6181100001011',
+    purchasePrice: 14500,
+    sellingPrice: 16500,
+    quantity: 40,
+    supplierName: 'Importateur Riz du Bénin',
+    expiryDate: '2027-06-30',
+    unit: 'sac',
+    shelfLocation: 'Zone Dépôt - Allée 1',
+    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=300&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1002',
-    name: 'Aashirvaad Shuddh Chakki Atta 5kg',
-    category: 'Grains & Atta',
-    barcode: '8901234001028',
-    purchasePrice: 240,
-    sellingPrice: 285,
-    quantity: 30,
-    supplierName: 'ITC Wholesale',
-    expiryDate: '2026-12-30',
-    unit: 'bag',
-    shelfLocation: 'Rack B - Ground Floor',
+    name: 'Huile Végétale Raffinée 1 L',
+    category: 'Huiles & Condiments',
+    barcode: '6181100001028',
+    purchasePrice: 1000,
+    sellingPrice: 1250,
+    quantity: 65,
+    supplierName: 'Distributeur Fludor Bénin',
+    expiryDate: '2027-02-15',
+    unit: 'bouteille',
+    shelfLocation: 'Rayon A - Étagère 2',
+    imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=300&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1003',
-    name: 'Tata Salt Vacuum Evaporated 1kg',
-    category: 'Spices & Salt',
-    barcode: '8901234001035',
-    purchasePrice: 22,
-    sellingPrice: 28,
-    quantity: 120,
-    supplierName: 'Tata Consumer Products',
-    unit: 'packet',
-    shelfLocation: 'Rack C - Shelf 1',
+    name: 'Sucre en Morceaux 1 kg',
+    category: 'Lait & Petit Déjeuner',
+    barcode: '6181100001035',
+    purchasePrice: 700,
+    sellingPrice: 850,
+    quantity: 80,
+    supplierName: 'Grossiste Alimentaire Dantokpa',
+    unit: 'paquet',
+    shelfLocation: 'Rayon B - Étagère 1',
+    imageUrl: 'https://images.unsplash.com/photo-1581441363689-1f3c3c414635?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1004',
-    name: 'Royal Sona Masoori Rice 5kg',
-    category: 'Rice & Pulses',
-    barcode: '8901234001042',
-    purchasePrice: 320,
-    sellingPrice: 380,
-    quantity: 8, // Low stock on purpose
-    supplierName: 'Sri Laxmi Rice Mill',
-    unit: 'bag',
-    shelfLocation: 'Rack B - Row 3',
+    name: 'Eau Minérale Naturelle Possotomè 1,5 L',
+    category: 'Boissons & Jus',
+    barcode: '6181100001042',
+    purchasePrice: 400,
+    sellingPrice: 500,
+    quantity: 7, // Stock faible pour test d'alerte
+    supplierName: 'Société des Eaux Minérales',
+    unit: 'bouteille',
+    shelfLocation: 'Frigo 1 & Casier Entrée',
+    imageUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1005',
-    name: 'Toor Dal Premium 1kg',
-    category: 'Rice & Pulses',
-    barcode: '8901234001059',
-    purchasePrice: 140,
-    sellingPrice: 168,
-    quantity: 25,
-    supplierName: 'Karnataka Pulses Traders',
-    unit: 'kg',
-    shelfLocation: 'Rack C - Shelf 3',
+    name: 'Lait en Poudre Bonnet Rouge 400g',
+    category: 'Lait & Petit Déjeuner',
+    barcode: '6181100001059',
+    purchasePrice: 1800,
+    sellingPrice: 2100,
+    quantity: 35,
+    supplierName: 'Comptoir Laitier Africain',
+    unit: 'boîte',
+    shelfLocation: 'Rayon B - Étagère 2',
+    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1006',
-    name: 'Tata Tea Premium 250g',
-    category: 'Beverages',
-    barcode: '8901234001066',
-    purchasePrice: 110,
-    sellingPrice: 135,
-    quantity: 50,
-    supplierName: 'Tata Consumer Products',
-    unit: 'packet',
-    shelfLocation: 'Rack A - Shelf 1',
+    name: 'Tomate Concentrée Gino 70g',
+    category: 'Conserves & Tomates',
+    barcode: '6181100001066',
+    purchasePrice: 125,
+    sellingPrice: 150,
+    quantity: 180,
+    supplierName: 'Grossiste Alimentaire Dantokpa',
+    unit: 'pcs',
+    shelfLocation: 'Rayon A - Tête de gondole',
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1007',
-    name: 'Amul Butter Pasteurized 100g',
-    category: 'Dairy & Bakery',
-    barcode: '8901234001073',
-    purchasePrice: 50,
-    sellingPrice: 58,
-    quantity: 18,
-    supplierName: 'Amul Milk Dairy',
-    expiryDate: '2026-08-20',
-    unit: 'pcs',
-    shelfLocation: 'Refrigerator 1',
+    name: 'Spaghetti 500g Extra',
+    category: 'Riz, Pâtes & Féculents',
+    barcode: '6181100001073',
+    purchasePrice: 350,
+    sellingPrice: 450,
+    quantity: 90,
+    supplierName: 'Comptoir Général de Vente',
+    unit: 'paquet',
+    shelfLocation: 'Rayon A - Étagère 3',
+    imageUrl: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1008',
-    name: 'Surf Excel Easy Wash Detergent Powder 1kg',
-    category: 'Household',
-    barcode: '8901234001080',
-    purchasePrice: 115,
-    sellingPrice: 142,
-    quantity: 35,
-    supplierName: 'Hindustan Unilever',
-    unit: 'packet',
-    shelfLocation: 'Rack D - Shelf 4',
+    name: 'Savon BF 180g (Lessive & Corps)',
+    category: 'Entretien & Lessive',
+    barcode: '6181100001080',
+    purchasePrice: 250,
+    sellingPrice: 300,
+    quantity: 120,
+    supplierName: 'Savonnerie du Littoral',
+    unit: 'morceau',
+    shelfLocation: 'Rayon D - Étagère 1',
+    imageUrl: 'https://images.unsplash.com/photo-1607006314644-8d96e57924ef?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1009',
-    name: 'Dettol Original Soap 125g (Pack of 3)',
-    category: 'Personal Care',
-    barcode: '8901234001097',
-    purchasePrice: 120,
-    sellingPrice: 148,
-    quantity: 5, // Low stock
-    supplierName: 'Reckitt Benckiser',
-    unit: 'box',
-    shelfLocation: 'Rack D - Shelf 1',
+    name: 'Dentifrice Protection Complète 140g',
+    category: 'Hygiène & Soins',
+    barcode: '6181100001097',
+    purchasePrice: 650,
+    sellingPrice: 800,
+    quantity: 5, // Stock faible pour test
+    supplierName: 'Distribution Parfumerie & Soins',
+    unit: 'tube',
+    shelfLocation: 'Rayon D - Étagère 2',
+    imageUrl: 'https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1010',
-    name: 'Colgate Strong Teeth Toothpaste 100g',
-    category: 'Personal Care',
-    barcode: '8901234001103',
-    purchasePrice: 52,
-    sellingPrice: 65,
-    quantity: 40,
-    supplierName: 'Colgate-Palmolive',
-    unit: 'pcs',
-    shelfLocation: 'Rack D - Shelf 2',
+    name: 'Biscuits Salés Croquants 100g',
+    category: 'Biscuits & Confiseries',
+    barcode: '6181100001103',
+    purchasePrice: 150,
+    sellingPrice: 200,
+    quantity: 95,
+    supplierName: 'Biscuiterie Moderne',
+    unit: 'paquet',
+    shelfLocation: 'Comptoir Caisse',
+    imageUrl: 'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1011',
-    name: 'Britannia Good Day Butter Biscuits 100g',
-    category: 'Snacks & Biscuits',
-    barcode: '8901234001110',
-    purchasePrice: 22,
-    sellingPrice: 30,
-    quantity: 60,
-    supplierName: 'Britannia Agency',
-    unit: 'packet',
-    shelfLocation: 'Front Counter Display',
+    name: 'Huile de Palme Raffinée 5 L',
+    category: 'Huiles & Condiments',
+    barcode: '6181100001110',
+    purchasePrice: 4500,
+    sellingPrice: 5200,
+    quantity: 22,
+    supplierName: 'Distributeur Fludor Bénin',
+    unit: 'bidon',
+    shelfLocation: 'Zone Dépôt - Allée 2',
+    imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1012',
-    name: 'Catch Turmeric Powder (Haldi) 100g',
-    category: 'Spices & Salt',
-    barcode: '8901234001127',
-    purchasePrice: 32,
-    sellingPrice: 42,
-    quantity: 28,
-    supplierName: 'Catch Spices',
-    unit: 'packet',
-    shelfLocation: 'Rack C - Shelf 2',
+    name: 'Pack Ménager Essentiel (Riz 25kg + Huile 1L + Tomate × 5)',
+    category: 'Paniers & Packs Éco',
+    barcode: '6181100009999',
+    purchasePrice: 16125,
+    sellingPrice: 18200,
+    quantity: 12,
+    supplierName: 'Boutique AJOWANU',
+    unit: 'pack',
+    isCombo: true,
+    comboItems: [
+      { productId: 'PRD-1001', productName: 'Riz Parfumé 25 kg', qty: 1 },
+      { productId: 'PRD-1002', productName: 'Huile Végétale Raffinée 1 L', qty: 1 },
+      { productId: 'PRD-1006', productName: 'Tomate Concentrée Gino 70g', qty: 5 }
+    ],
+    shelfLocation: 'Îlot Promotions Entrée',
+    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     id: 'PRD-1013',
-    name: 'Breakfast Festival Combo Pack (Tea + Biscuits)',
-    category: 'Combos & Packs',
-    barcode: '8901234009999',
-    purchasePrice: 132,
-    sellingPrice: 155,
-    quantity: 15,
-    supplierName: 'In-House Combo',
-    unit: 'box',
-    isCombo: true,
-    comboItems: [
-      { productId: 'PRD-1006', productName: 'Tata Tea Premium 250g', qty: 1 },
-      { productId: 'PRD-1011', productName: 'Britannia Good Day Butter Biscuits 100g', qty: 1 }
-    ],
-    shelfLocation: 'Special Offer Display',
+    name: 'Jus d\'Ananas Naturel Béninois 33 cl',
+    category: 'Boissons & Jus',
+    barcode: '6181100001134',
+    purchasePrice: 450,
+    sellingPrice: 600,
+    quantity: 48,
+    supplierName: 'Société des Jus du Bénin',
+    unit: 'bouteille',
+    shelfLocation: 'Frigo Boissons - Étagère 1',
+    imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1014',
+    name: 'Café Moulu Robusta Premium 250g',
+    category: 'Lait & Petit Déjeuner',
+    barcode: '6181100001141',
+    purchasePrice: 1300,
+    sellingPrice: 1600,
+    quantity: 30,
+    supplierName: 'Comptoir Café d\'Afrique',
+    unit: 'sachet',
+    shelfLocation: 'Rayon B - Étagère 3',
+    imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1015',
+    name: 'Sardines à l\'Huile Titus 125g',
+    category: 'Conserves & Tomates',
+    barcode: '6181100001158',
+    purchasePrice: 500,
+    sellingPrice: 650,
+    quantity: 75,
+    supplierName: 'Importateur Conserves & Vivres',
+    unit: 'boîte',
+    shelfLocation: 'Rayon A - Étagère 4',
+    imageUrl: 'https://images.unsplash.com/photo-1534948216015-843149f72be3?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1016',
+    name: 'Couscous Moyen Semoule de Blé 1 kg',
+    category: 'Riz, Pâtes & Féculents',
+    barcode: '6181100001165',
+    purchasePrice: 850,
+    sellingPrice: 1100,
+    quantity: 50,
+    supplierName: 'Importateur Céréales Cotonou',
+    unit: 'paquet',
+    shelfLocation: 'Rayon A - Étagère 2',
+    imageUrl: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1017',
+    name: 'Mayonnaise Onctueuse Flacon 500 ml',
+    category: 'Huiles & Condiments',
+    barcode: '6181100001172',
+    purchasePrice: 1200,
+    sellingPrice: 1500,
+    quantity: 36,
+    supplierName: 'Distributeur Fludor Bénin',
+    unit: 'flacon',
+    shelfLocation: 'Rayon C - Étagère 2',
+    imageUrl: 'https://images.unsplash.com/photo-1528751014936-863e6e7a319c?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1018',
+    name: 'Poudre Détergente OMO Lavage Main 1 kg',
+    category: 'Entretien & Lessive',
+    barcode: '6181100001189',
+    purchasePrice: 1150,
+    sellingPrice: 1400,
+    quantity: 60,
+    supplierName: 'Savonnerie du Littoral',
+    unit: 'sachet',
+    shelfLocation: 'Rayon D - Étagère 3',
+    imageUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1019',
+    name: 'Chocolat en Poudre Nesquik 400g',
+    category: 'Lait & Petit Déjeuner',
+    barcode: '6181100001196',
+    purchasePrice: 1750,
+    sellingPrice: 2200,
+    quantity: 28,
+    supplierName: 'Comptoir Laitier Africain',
+    unit: 'boîte',
+    shelfLocation: 'Rayon B - Étagère 2',
+    imageUrl: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1020',
+    name: 'Eau Gazeuse Naturelle 50 cl',
+    category: 'Boissons & Jus',
+    barcode: '6181100001202',
+    purchasePrice: 350,
+    sellingPrice: 500,
+    quantity: 40,
+    supplierName: 'Société des Eaux Minérales',
+    unit: 'bouteille',
+    shelfLocation: 'Frigo Boissons - Casier 2',
+    imageUrl: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1021',
+    name: 'Bouillon d\'Assaisonnement Étoile (Boîte de 60)',
+    category: 'Huiles & Condiments',
+    barcode: '6181100001219',
+    purchasePrice: 1100,
+    sellingPrice: 1350,
+    quantity: 85,
+    supplierName: 'Grossiste Alimentaire Dantokpa',
+    unit: 'boîte',
+    shelfLocation: 'Rayon C - Étagère 1',
+    imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1022',
+    name: 'Liquide Vaisselle Citron Brillance 750 ml',
+    category: 'Entretien & Lessive',
+    barcode: '6181100001226',
+    purchasePrice: 750,
+    sellingPrice: 950,
+    quantity: 45,
+    supplierName: 'Savonnerie du Littoral',
+    unit: 'bouteille',
+    shelfLocation: 'Rayon D - Étagère 4',
+    imageUrl: 'https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1023',
+    name: 'Papier Hygiénique Moelleux Extra (Paquet de 4)',
+    category: 'Hygiène & Soins',
+    barcode: '6181100001233',
+    purchasePrice: 800,
+    sellingPrice: 1000,
+    quantity: 55,
+    supplierName: 'Distribution Parfumerie & Soins',
+    unit: 'paquet',
+    shelfLocation: 'Rayon D - Tête de gondole',
+    imageUrl: 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=400&q=80',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'PRD-1024',
+    name: 'Chips de Banane Alloco Salées 150g',
+    category: 'Biscuits & Confiseries',
+    barcode: '6181100001240',
+    purchasePrice: 400,
+    sellingPrice: 550,
+    quantity: 65,
+    supplierName: 'Biscuiterie Moderne',
+    unit: 'paquet',
+    shelfLocation: 'Comptoir Caisse',
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=400&q=80',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
 ];
 
+// Helper to resolve product image from catalog or matching keywords
+export const resolveProductImage = (name: string, category: string = '', barcode?: string, id?: string): string => {
+  const norm = (str: string) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const nName = norm(name || '');
+
+  // 1. Direct match with INITIAL_SAMPLE_PRODUCTS
+  const sample = INITIAL_SAMPLE_PRODUCTS.find(s => 
+    (id && s.id === id) || 
+    (barcode && s.barcode === barcode) ||
+    norm(s.name) === nName ||
+    nName.includes(norm(s.name)) ||
+    norm(s.name).includes(nName)
+  );
+  if (sample?.imageUrl) return sample.imageUrl;
+
+  // 2. Keyword-based matching
+  if (nName.includes('riz')) return 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('huile') || nName.includes('fludor')) return 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('sucre')) return 'https://images.unsplash.com/photo-1581441363689-1f3c3c414635?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('eau') || nName.includes('possotome') || nName.includes('fifamin')) return 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('lait') || nName.includes('bonnet') || nName.includes('creme')) return 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('tomate') || nName.includes('gino') || nName.includes('conserve')) return 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('spaghetti') || nName.includes('pate') || nName.includes('couscous') || nName.includes('macaroni')) return 'https://images.unsplash.com/photo-1612927601601-6638404737ce?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('savon') || nName.includes('lessive') || nName.includes('omo') || nName.includes('vaisselle')) return 'https://images.unsplash.com/photo-1607006314644-8d96e57924ef?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('dentifrice') || nName.includes('brosse')) return 'https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('biscuit') || nName.includes('cookie') || nName.includes('croquant')) return 'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('palme')) return 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('pack') || nName.includes('panier')) return 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('jus') || nName.includes('boisson') || nName.includes('ananas')) return 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('cafe') || nName.includes('robusta')) return 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('sardine') || nName.includes('titus') || nName.includes('thon')) return 'https://images.unsplash.com/photo-1534948216015-843149f72be3?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('chocolat') || nName.includes('nesquik')) return 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('mayonnaise')) return 'https://images.unsplash.com/photo-1528751014936-863e6e7a319c?auto=format&fit=crop&w=400&q=80';
+  if (nName.includes('chips') || nName.includes('alloco') || nName.includes('plantain')) return 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=400&q=80';
+
+  // 3. Category fallback
+  const nCat = norm(category || '');
+  if (nCat.includes('riz') || nCat.includes('pate') || nCat.includes('feculent')) return 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80';
+  if (nCat.includes('huile') || nCat.includes('condiment')) return 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=400&q=80';
+  if (nCat.includes('boisson') || nCat.includes('jus')) return 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=400&q=80';
+  if (nCat.includes('lait') || nCat.includes('dejeuner')) return 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80';
+  if (nCat.includes('conserve') || nCat.includes('tomate')) return 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=400&q=80';
+  if (nCat.includes('entretien') || nCat.includes('lessive')) return 'https://images.unsplash.com/photo-1607006314644-8d96e57924ef?auto=format&fit=crop&w=400&q=80';
+  if (nCat.includes('hygiene') || nCat.includes('soin')) return 'https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&w=400&q=80';
+  if (nCat.includes('biscuit') || nCat.includes('confiserie')) return 'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=400&q=80';
+
+  return 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80';
+};
+
 export const INITIAL_SAMPLE_CUSTOMERS: Customer[] = [
   {
     id: 'CUST-1001',
-    name: 'Suresh Raina',
-    phone: '9845011223',
-    email: 'suresh.r@example.com',
-    address: 'Flat 302, Green Acres Apt, Sector 4, Bangalore',
-    gstNumber: '29AAACG1234H1Z1',
+    name: 'Bio Chabi',
+    phone: '+229 97 12 34 56',
+    email: 'bio.chabi@example.com',
+    address: 'Quartier Akpakpa, Cotonou, Bénin',
+    gstNumber: 'IFU 1202000012345',
     birthday: '1988-11-27',
-    notes: 'Regular morning customer. Prefers organic rice.',
-    totalSpent: 12450,
-    loyaltyPoints: 124,
-    storeCredit: 250,
+    notes: 'Client régulier du quartier. Achète souvent des sacs de riz au comptant.',
+    totalSpent: 185000,
+    loyaltyPoints: 185,
+    storeCredit: 2500,
     outstandingDues: 0,
     tag: 'VIP',
     createdAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString(),
   },
   {
     id: 'CUST-1002',
-    name: 'Priya Sharma',
-    phone: '9876500112',
-    email: 'priya.sharma@example.com',
-    address: 'House 45, Rosewood Layout, Sector 4',
+    name: 'Séfiatou Alabi',
+    phone: '+229 95 88 77 66',
+    email: 'sefiatou.alabi@example.com',
+    address: 'Haie Vive, Cotonou, Bénin',
     birthday: '1992-05-14',
-    notes: 'Wholesale order customer for apartment canteen.',
-    totalSpent: 28900,
-    loyaltyPoints: 289,
+    notes: 'Gestionnaire de cantine scolaire. Achats en gros et demi-gros.',
+    totalSpent: 420000,
+    loyaltyPoints: 420,
     storeCredit: 0,
-    outstandingDues: 1200,
+    outstandingDues: 15000,
     tag: 'Wholesale',
     createdAt: new Date(Date.now() - 60 * 24 * 3600 * 1000).toISOString(),
   },
   {
     id: 'CUST-1003',
-    name: 'Anil Deshmukh',
-    phone: '9900112233',
-    address: 'Near Temple Gate, Sector 3',
-    totalSpent: 3400,
-    loyaltyPoints: 34,
-    storeCredit: 100,
-    outstandingDues: 450,
+    name: 'Rodrigue Dossou',
+    phone: '+229 96 44 33 22',
+    address: 'Godomey, Abomey-Calavi, Bénin',
+    totalSpent: 48500,
+    loyaltyPoints: 48,
+    storeCredit: 500,
+    outstandingDues: 2500,
     tag: 'Regular',
     createdAt: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString(),
   }
@@ -387,49 +613,204 @@ export const INITIAL_SAMPLE_CUSTOMERS: Customer[] = [
 export const INITIAL_SAMPLE_SUPPLIERS: Supplier[] = [
   {
     id: 'SUP-101',
-    name: 'ITC Wholesale Ltd',
-    companyName: 'ITC Agro Products',
-    phone: '+91 98765 00002',
-    email: 'orders@example-supplier.com',
-    gstin: '29AAACI1234A1Z9',
-    address: 'ITC Industrial Park, Peenya, Bangalore',
-    paymentTerms: '15 Days Credit',
-    outstandingBalance: 14500,
+    name: 'Distributeur Fludor Bénin',
+    companyName: 'Fludor Bénin SA',
+    phone: '+229 97 50 11 22',
+    email: 'commandes@fludor-benin.com',
+    gstin: '3201800123456',
+    address: 'Zone Industrielle Akpakpa, Cotonou, Bénin',
+    paymentTerms: 'Crédit 15 jours',
+    outstandingBalance: 125000,
     createdAt: new Date().toISOString(),
   },
   {
     id: 'SUP-102',
-    name: 'Fortune Distributors',
-    companyName: 'Adani Wilmar Logistics',
-    phone: '+91 98765 00003',
-    email: 'supply@example-supplier.com',
-    gstin: '29AAACA9876B1Z2',
-    address: 'Godown 12, APMC Yard, Yeshwanthpur, Bangalore',
-    paymentTerms: 'Immediate / Cash',
+    name: 'Importateur Riz du Bénin',
+    companyName: 'Bénin Riz & Grains SARL',
+    phone: '+229 96 30 44 55',
+    email: 'vente@beninriz.com',
+    gstin: '3201900456789',
+    address: 'Port Autonome de Cotonou, Bénin',
+    paymentTerms: 'Comptant / Mobile Money',
     outstandingBalance: 0,
     createdAt: new Date().toISOString(),
   },
   {
     id: 'SUP-103',
-    name: 'Tata Consumer Products',
-    companyName: 'Tata Consumer Brands',
-    phone: '+91 98765 00004',
-    email: 'distributor@example-supplier.com',
-    gstin: '29AAACT5544C1Z0',
-    address: 'Tower B, Electronic City, Bangalore',
-    paymentTerms: '30 Days Net',
-    outstandingBalance: 8200,
+    name: 'Grossiste Alimentaire Dantokpa',
+    companyName: 'Établissements Adjovi & Fils',
+    phone: '+229 95 20 66 77',
+    email: 'adjovi.dantokpa@example.com',
+    gstin: '3202000789012',
+    address: 'Grand Marché Dantokpa, Hangar C, Cotonou, Bénin',
+    paymentTerms: 'Net 30 jours',
+    outstandingBalance: 45000,
     createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'SUP-104',
+    name: 'Société des Jus du Bénin',
+    companyName: 'SJB Agro-Industrie Bénin',
+    phone: '+229 97 12 34 56',
+    email: 'contact@sjb-agro.bj',
+    gstin: '3202100890123',
+    address: 'Avenue de la Marina, Cotonou, Bénin',
+    paymentTerms: 'Crédit 15 jours',
+    outstandingBalance: 32000,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'SUP-105',
+    name: 'Comptoir Laitier Africain',
+    companyName: 'CLA Distribution Cotonou',
+    phone: '+229 94 88 77 66',
+    email: 'commandes@cla-lait.com',
+    gstin: '3201700345678',
+    address: 'Boulevard Saint-Michel, Cotonou, Bénin',
+    paymentTerms: 'Comptant à la livraison',
+    outstandingBalance: 0,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'SUP-106',
+    name: 'Savonnerie du Littoral',
+    companyName: 'Manufacture Savons & Lessives Bénin',
+    phone: '+229 90 45 67 89',
+    email: 'savonnerie.littoral@example.com',
+    gstin: '3201600234567',
+    address: 'PK3 Route de Porto-Novo, Sèmè-Kpodji, Bénin',
+    paymentTerms: 'Net 30 jours',
+    outstandingBalance: 68000,
+    createdAt: new Date().toISOString(),
+  }
+];
+
+export const INITIAL_SAMPLE_PRICE_HISTORY: PriceHistoryRecord[] = [
+  {
+    id: 'PH-101',
+    productId: 'PRD-1001',
+    productName: 'Riz Parfumé Jasmin Sac 25 kg',
+    oldPurchasePrice: 17500,
+    newPurchasePrice: 18500,
+    oldSellingPrice: 20000,
+    newSellingPrice: 21500,
+    dateChanged: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
+    changedBy: 'Koffi Mensah (Gérant)',
+  },
+  {
+    id: 'PH-102',
+    productId: 'PRD-1002',
+    productName: 'Huile Végétale Fludor Bidon 5L',
+    oldPurchasePrice: 5200,
+    newPurchasePrice: 5500,
+    oldSellingPrice: 6200,
+    newSellingPrice: 6500,
+    dateChanged: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
+    changedBy: 'Koffi Mensah (Gérant)',
+  },
+  {
+    id: 'PH-103',
+    productId: 'PRD-1003',
+    productName: 'Sucre Blanc en Morceaux 1 kg',
+    oldPurchasePrice: 700,
+    newPurchasePrice: 750,
+    oldSellingPrice: 850,
+    newSellingPrice: 900,
+    dateChanged: new Date(Date.now() - 9 * 24 * 3600 * 1000).toISOString(),
+    changedBy: 'Amina Mama (Caissière)',
+  },
+  {
+    id: 'PH-104',
+    productId: 'PRD-1005',
+    productName: 'Lait Concentré Sucré Bonnet Rouge 397g',
+    oldPurchasePrice: 680,
+    newPurchasePrice: 700,
+    oldSellingPrice: 800,
+    newSellingPrice: 850,
+    dateChanged: new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString(),
+    changedBy: 'Koffi Mensah (Gérant)',
+  },
+  {
+    id: 'PH-105',
+    productId: 'PRD-1008',
+    productName: 'Savon de Ménage BF Cotonou 400g',
+    oldPurchasePrice: 280,
+    newPurchasePrice: 300,
+    oldSellingPrice: 350,
+    newSellingPrice: 400,
+    dateChanged: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString(),
+    changedBy: 'Koffi Mensah (Gérant)',
+  }
+];
+
+export const INITIAL_SAMPLE_RECYCLE_BIN: RecycleBinItem[] = [
+  {
+    id: 'BIN-101',
+    type: 'Product',
+    originalId: 'PRD-ARCH-01',
+    title: 'Biscuits Vanille Paquet Ancien Format 100g',
+    data: {
+      id: 'PRD-ARCH-01',
+      name: 'Biscuits Vanille Paquet Ancien Format 100g',
+      category: 'Biscuits & Confiseries',
+      barcode: '6181100099911',
+      purchasePrice: 200,
+      sellingPrice: 300,
+      quantity: 15,
+      supplierName: 'Biscuiterie Moderne',
+      unit: 'paquet',
+      createdAt: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(),
+    },
+    deletedAt: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
+    deletedBy: 'Koffi Mensah (Gérant)',
+  },
+  {
+    id: 'BIN-102',
+    type: 'Customer',
+    originalId: 'CUST-ARCH-02',
+    title: 'Pauline Dossou (Doublon compte client)',
+    data: {
+      id: 'CUST-ARCH-02',
+      name: 'Pauline Dossou (Doublon)',
+      phone: '+229 97 00 99 88',
+      email: 'pauline.d@example.com',
+      address: 'Cadjehoun, Cotonou',
+      outstandingDues: 0,
+      creditLimit: 20000,
+      loyaltyPoints: 10,
+      createdAt: new Date(Date.now() - 20 * 24 * 3600 * 1000).toISOString(),
+    },
+    deletedAt: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(),
+    deletedBy: 'Amina Mama (Caissière)',
+  },
+  {
+    id: 'BIN-103',
+    type: 'Expense',
+    originalId: 'EXP-ARCH-03',
+    title: 'Achat ampoules électriques de secours (Facture annulée)',
+    data: {
+      id: 'EXP-ARCH-03',
+      title: 'Achat ampoules électriques de secours (Facture annulée)',
+      category: 'Entretien & Réparations',
+      amount: 4500,
+      date: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString().split('T')[0],
+      paymentMode: 'Cash',
+      notes: 'Facture en double annulée par le gérant',
+      createdAt: new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString(),
+    },
+    deletedAt: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
+    deletedBy: 'Koffi Mensah (Gérant)',
   }
 ];
 
 export const INITIAL_SAMPLE_EMPLOYEES: Employee[] = [
   {
     id: 'EMP-01',
-    name: 'Rajesh Kumar (Owner)',
-    phone: '+91 98765 00000',
-    address: 'Main Market Road, Bangalore',
-    salary: 60000,
+    name: 'Koffi Mensah (Gérant)',
+    phone: '+229 97 00 12 34',
+    address: 'Avenue Steinmetz, Cotonou, Bénin',
+    salary: 250000,
     joiningDate: '2023-01-01',
     role: 'Owner',
     pin: '1234',
@@ -437,10 +818,10 @@ export const INITIAL_SAMPLE_EMPLOYEES: Employee[] = [
   },
   {
     id: 'EMP-02',
-    name: 'Kavitha S (Head Cashier)',
-    phone: '+91 98765 00005',
-    address: 'BTM Layout 2nd Stage, Bangalore',
-    salary: 22000,
+    name: 'Amina Mama (Caissière principale)',
+    phone: '+229 95 11 22 33',
+    address: 'Fidjrossè, Cotonou, Bénin',
+    salary: 110000,
     joiningDate: '2024-03-15',
     role: 'Cashier',
     pin: '1111',
@@ -448,10 +829,10 @@ export const INITIAL_SAMPLE_EMPLOYEES: Employee[] = [
   },
   {
     id: 'EMP-03',
-    name: 'Ramesh Gowda (Stock Manager)',
-    phone: '+91 98765 00006',
-    address: 'HSR Layout Sector 1, Bangalore',
-    salary: 25000,
+    name: 'Pascal Hounkpe (Gestionnaire stock)',
+    phone: '+229 96 44 55 66',
+    address: 'Menontin, Cotonou, Bénin',
+    salary: 130000,
     joiningDate: '2024-01-10',
     role: 'Inventory Staff',
     pin: '2222',
@@ -462,118 +843,182 @@ export const INITIAL_SAMPLE_EMPLOYEES: Employee[] = [
 export const INITIAL_SAMPLE_EXPENSES: Expense[] = [
   {
     id: 'EXP-101',
-    title: 'Shop Monthly Rent',
+    title: 'Loyer mensuel du magasin',
     category: 'Rent',
-    amount: 18000,
+    amount: 150000,
     date: new Date().toISOString().split('T')[0],
     paymentMode: 'Bank',
-    notes: 'Paid to shop landlord Mr. Varma via NEFT',
+    notes: 'Règlement loyer boutique propriétaire Tokpa',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'EXP-102',
-    title: 'BESCOM Electricity Bill',
+    title: 'Facture Électricité SBEE',
     category: 'Electricity',
-    amount: 3200,
+    amount: 32500,
     date: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString().split('T')[0],
     paymentMode: 'UPI',
-    notes: 'Refrigeration and shop lights bill',
+    notes: 'Électricité conservation frigos et éclairage',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'EXP-103',
-    title: 'Airtel Broadband Internet',
+    title: 'Forfait Internet Fibre / Routeur',
     category: 'Internet',
-    amount: 999,
+    amount: 15000,
     date: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString().split('T')[0],
     paymentMode: 'UPI',
-    notes: 'Monthly high speed plan',
+    notes: 'Abonnement mensuel connectivité caisse',
     createdAt: new Date().toISOString(),
+  }
+];
+
+export const INITIAL_SAMPLE_PURCHASE_ORDERS: PurchaseOrder[] = [
+  {
+    id: 'PO-2026-001',
+    poNumber: 'BC-2026-0001',
+    supplierId: 'SUP-101',
+    supplierName: 'Fludor Bénin SA',
+    orderDate: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString().split('T')[0],
+    status: 'Received',
+    receivedDate: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString().split('T')[0],
+    totalAmount: 260000,
+    notes: 'Livraison hebdomadaire huiles végétales et savons',
+    items: [
+      {
+        productId: 'PRD-1002',
+        productName: 'Huile Végétale Fludor Bidon 5L',
+        qty: 40,
+        purchasePrice: 5500,
+      },
+      {
+        productId: 'PRD-1011',
+        productName: 'Huile de Palme Supérieure 1L',
+        qty: 40,
+        purchasePrice: 1000,
+      }
+    ]
+  },
+  {
+    id: 'PO-2026-002',
+    poNumber: 'BC-2026-0002',
+    supplierId: 'SUP-102',
+    supplierName: 'Bénin Riz & Grains SARL',
+    orderDate: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString().split('T')[0],
+    status: 'Ordered',
+    totalAmount: 370000,
+    notes: 'Réassort d\'urgence pour approvisionnement riz parfumé',
+    items: [
+      {
+        productId: 'PRD-1001',
+        productName: 'Riz Parfumé Jasmin Sac 25 kg',
+        qty: 20,
+        purchasePrice: 18500,
+      }
+    ]
+  },
+  {
+    id: 'PO-2026-003',
+    poNumber: 'BC-2026-0003',
+    supplierId: 'SUP-104',
+    supplierName: 'SJB Agro-Industrie Bénin',
+    orderDate: new Date().toISOString().split('T')[0],
+    status: 'Draft',
+    totalAmount: 180000,
+    notes: 'Prévision commande jus de fruits et boissons rafraîchissantes',
+    items: [
+      {
+        productId: 'PRD-1013',
+        productName: 'Jus d\'Ananas Pur Bénin Bouteille 1L',
+        qty: 150,
+        purchasePrice: 1200,
+      }
+    ]
   }
 ];
 
 export const INITIAL_SAMPLE_SALES: Sale[] = [
   {
     id: 'SALE-101',
-    invoiceNumber: 'INV-2026-0001',
+    invoiceNumber: 'FACT-2026-0001',
     dateTime: new Date(Date.now() - 3600 * 1000 * 3).toISOString(),
     customerId: 'CUST-1001',
-    customerName: 'Suresh Raina',
-    customerPhone: '9845011223',
+    customerName: 'Bio Chabi',
+    customerPhone: '+229 97 12 34 56',
     items: [
       {
         id: 'SI-1',
         productId: 'PRD-1001',
-        productName: 'Fortune Sunlite Sunflower Oil 1L',
-        barcode: '8901234001011',
-        unitPurchasePrice: 135,
-        unitSellingPrice: 160,
-        quantity: 2,
-        totalPrice: 320,
+        productName: 'Riz Parfumé 25 kg',
+        barcode: '6181100001011',
+        unitPurchasePrice: 14500,
+        unitSellingPrice: 16500,
+        quantity: 1,
+        totalPrice: 16500,
       },
       {
         id: 'SI-2',
-        productId: 'PRD-1003',
-        productName: 'Tata Salt Vacuum Evaporated 1kg',
-        barcode: '8901234001035',
-        unitPurchasePrice: 22,
-        unitSellingPrice: 28,
-        quantity: 1,
-        totalPrice: 28,
+        productId: 'PRD-1002',
+        productName: 'Huile Végétale Raffinée 1 L',
+        barcode: '6181100001028',
+        unitPurchasePrice: 1000,
+        unitSellingPrice: 1250,
+        quantity: 2,
+        totalPrice: 2500,
       }
     ],
-    subtotal: 348,
+    subtotal: 19000,
     taxPercent: 0,
     taxAmount: 0,
-    discountAmount: 8,
-    totalAmount: 340,
-    receivedAmount: 500,
-    changeAmount: 160,
+    discountAmount: 500,
+    totalAmount: 18500,
+    receivedAmount: 20000,
+    changeAmount: 1500,
     paymentMode: 'Cash',
-    totalProfit: 48,
+    totalProfit: 2000,
     status: 'Completed',
-    cashierName: 'Kavitha S',
+    cashierName: 'Amina Mama',
   },
   {
     id: 'SALE-102',
-    invoiceNumber: 'INV-2026-0002',
+    invoiceNumber: 'FACT-2026-0002',
     dateTime: new Date(Date.now() - 3600 * 1000 * 1.5).toISOString(),
     customerId: 'CUST-1002',
-    customerName: 'Priya Sharma',
-    customerPhone: '9876500112',
+    customerName: 'Séfiatou Alabi',
+    customerPhone: '+229 95 88 77 66',
     items: [
       {
         id: 'SI-3',
-        productId: 'PRD-1002',
-        productName: 'Aashirvaad Shuddh Chakki Atta 5kg',
-        barcode: '8901234001028',
-        unitPurchasePrice: 240,
-        unitSellingPrice: 285,
-        quantity: 1,
-        totalPrice: 285,
+        productId: 'PRD-1005',
+        productName: 'Lait en Poudre Bonnet Rouge 400g',
+        barcode: '6181100001059',
+        unitPurchasePrice: 1800,
+        unitSellingPrice: 2100,
+        quantity: 3,
+        totalPrice: 6300,
       },
       {
         id: 'SI-4',
-        productId: 'PRD-1007',
-        productName: 'Amul Butter Pasteurized 100g',
-        barcode: '8901234001073',
-        unitPurchasePrice: 50,
-        unitSellingPrice: 58,
-        quantity: 2,
-        totalPrice: 116,
+        productId: 'PRD-1003',
+        productName: 'Sucre en Morceaux 1 kg',
+        barcode: '6181100001035',
+        unitPurchasePrice: 700,
+        unitSellingPrice: 850,
+        quantity: 4,
+        totalPrice: 3400,
       }
     ],
-    subtotal: 401,
+    subtotal: 9700,
     taxPercent: 0,
     taxAmount: 0,
-    discountAmount: 1,
-    totalAmount: 400,
-    receivedAmount: 400,
+    discountAmount: 200,
+    totalAmount: 9500,
+    receivedAmount: 9500,
     changeAmount: 0,
     paymentMode: 'UPI',
-    totalProfit: 61,
+    totalProfit: 1300,
     status: 'Completed',
-    cashierName: 'Rajesh Kumar',
+    cashierName: 'Koffi Mensah',
   }
 ];
 
@@ -618,14 +1063,98 @@ class SQLiteStorageEngine {
     this.branches = this.loadData(STORAGE_KEYS.BRANCHES, INITIAL_SAMPLE_BRANCHES);
     this.cashShifts = this.loadData(STORAGE_KEYS.CASH_SHIFTS, []);
     this.cashTxns = this.loadData(STORAGE_KEYS.CASH_TXNS, []);
-    this.priceHistory = this.loadData(STORAGE_KEYS.PRICE_HISTORY, []);
+    this.priceHistory = this.loadData(STORAGE_KEYS.PRICE_HISTORY, INITIAL_SAMPLE_PRICE_HISTORY);
     this.categories = this.loadData(STORAGE_KEYS.CATEGORIES, INITIAL_SAMPLE_CATEGORIES);
     this.customerLedgers = this.loadData(STORAGE_KEYS.CUSTOMER_LEDGERS, []);
-    this.recycleBin = this.loadData(STORAGE_KEYS.RECYCLE_BIN, []);
+    this.recycleBin = this.loadData(STORAGE_KEYS.RECYCLE_BIN, INITIAL_SAMPLE_RECYCLE_BIN);
     this.updates = this.loadData(STORAGE_KEYS.UPDATES, INITIAL_SAMPLE_UPDATES);
+
+    if (this.priceHistory.length === 0) {
+      this.priceHistory = INITIAL_SAMPLE_PRICE_HISTORY;
+      this.saveData(STORAGE_KEYS.PRICE_HISTORY, this.priceHistory);
+    }
+    if (this.recycleBin.length === 0) {
+      this.recycleBin = INITIAL_SAMPLE_RECYCLE_BIN;
+      this.saveData(STORAGE_KEYS.RECYCLE_BIN, this.recycleBin);
+    }
+    if (this.purchaseOrders.length === 0) {
+      this.purchaseOrders = INITIAL_SAMPLE_PURCHASE_ORDERS;
+      this.saveData(STORAGE_KEYS.PURCHASE_ORDERS, this.purchaseOrders);
+    }
+    if (this.suppliers.length < 4) {
+      const existingSupIds = new Set(this.suppliers.map(s => s.id));
+      const missingSups = INITIAL_SAMPLE_SUPPLIERS.filter(s => !existingSupIds.has(s.id));
+      if (missingSups.length > 0) {
+        this.suppliers = [...this.suppliers, ...missingSups];
+        this.saveData(STORAGE_KEYS.SUPPLIERS, this.suppliers);
+      }
+    }
 
     this.currentUser = this.employees[0] || null;
     
+    // Migration automatique transparente vers AJOWANU
+    if (this.settings.currencySymbol === '₹' || !this.settings.currencySymbol || !this.settings.shopName || this.settings.shopName.includes('Grocery')) {
+      this.settings = {
+        ...DEFAULT_SETTINGS,
+        shopName: 'Boutique AJOWANU',
+        currencySymbol: 'FCFA',
+        gstNumber: 'IFU 3202100000000',
+        address: 'Avenue Steinmetz, Tokpa Hoho, Cotonou, Bénin',
+        phone: '+229 97 00 12 34',
+        invoicePrefix: 'FACT',
+        merchantName: 'Boutique AJOWANU',
+        upiId: '+229 97 00 12 34',
+        defaultPaymentNote: 'Paiement Boutique AJOWANU',
+        upiReceiptFooter: 'Paiement Mobile Money / QR Encaissé avec succès',
+      };
+      this.saveData(STORAGE_KEYS.SETTINGS, this.settings);
+    }
+
+    if (this.products.length === 0 || this.products.some(p => p.name.includes('Fortune') || p.name.includes('Aashirvaad') || p.name.includes('Tata'))) {
+      this.products = INITIAL_SAMPLE_PRODUCTS;
+      this.saveData(STORAGE_KEYS.PRODUCTS, this.products);
+      this.sales = INITIAL_SAMPLE_SALES;
+      this.saveData(STORAGE_KEYS.SALES, this.sales);
+      this.customers = INITIAL_SAMPLE_CUSTOMERS;
+      this.saveData(STORAGE_KEYS.CUSTOMERS, this.customers);
+      this.suppliers = INITIAL_SAMPLE_SUPPLIERS;
+      this.saveData(STORAGE_KEYS.SUPPLIERS, this.suppliers);
+      this.employees = INITIAL_SAMPLE_EMPLOYEES;
+      this.saveData(STORAGE_KEYS.EMPLOYEES, this.employees);
+      this.expenses = INITIAL_SAMPLE_EXPENSES;
+      this.saveData(STORAGE_KEYS.EXPENSES, this.expenses);
+      this.branches = INITIAL_SAMPLE_BRANCHES;
+      this.saveData(STORAGE_KEYS.BRANCHES, this.branches);
+      this.categories = INITIAL_SAMPLE_CATEGORIES;
+      this.saveData(STORAGE_KEYS.CATEGORIES, this.categories);
+    } else {
+      // Backfill missing images and ensure all products have high-resolution visuals
+      let hydrated = false;
+      this.products = this.products.map(p => {
+        if (!p.imageUrl || p.imageUrl.trim() === '') {
+          const resolved = resolveProductImage(p.name, p.category, p.barcode, p.id);
+          if (resolved) {
+            hydrated = true;
+            return { ...p, imageUrl: resolved };
+          }
+        }
+        return p;
+      });
+
+      // If existing catalog has fewer sample products, merge any missing demo products
+      const existingBarcodes = new Set(this.products.map(p => p.barcode));
+      const missingSamples = INITIAL_SAMPLE_PRODUCTS.filter(s => !existingBarcodes.has(s.barcode));
+      if (missingSamples.length > 0) {
+        this.products = [...this.products, ...missingSamples];
+        hydrated = true;
+      }
+
+      if (hydrated) {
+        this.saveData(STORAGE_KEYS.PRODUCTS, this.products);
+      }
+    }
+    this.currentUser = this.employees[0] || null;
+
     // Auto initialize an open cash register shift if none open today
     this.ensureActiveCashShift();
   }
@@ -640,6 +1169,14 @@ class SQLiteStorageEngine {
       return JSON.parse(raw);
     } catch {
       return defaultValue;
+    }
+  }
+
+  private saveData<T>(key: string, data: T): void {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+      console.error('Failed to save data for key:', key, e);
     }
   }
 
@@ -732,6 +1269,7 @@ class SQLiteStorageEngine {
           batchNumber: productData.batchNumber,
           shelfLocation: productData.shelfLocation || 'Main Display',
           unit: productData.unit || 'pcs',
+          imageUrl: productData.imageUrl,
           createdAt: now,
           updatedAt: now,
         };
@@ -757,6 +1295,7 @@ class SQLiteStorageEngine {
         batchNumber: productData.batchNumber,
         shelfLocation: productData.shelfLocation || 'Main Display',
         unit: productData.unit || 'pcs',
+        imageUrl: productData.imageUrl,
         createdAt: now,
         updatedAt: now,
       };
@@ -890,6 +1429,10 @@ class SQLiteStorageEngine {
   }
 
   public deleteCustomer(id: string): boolean {
+    const cust = this.customers.find(c => c.id === id);
+    if (cust) {
+      this.moveToRecycleBin('Customer', cust.id, `${cust.name} (${cust.phone})`, cust);
+    }
     this.customers = this.customers.filter(c => c.id !== id);
     this.persistCustomers();
     return true;
@@ -909,6 +1452,10 @@ class SQLiteStorageEngine {
     return [...this.suppliers];
   }
 
+  public getSupplierById(id: string): Supplier | undefined {
+    return this.suppliers.find(s => s.id === id);
+  }
+
   public saveSupplier(supData: Partial<Supplier> & { name: string; companyName: string; phone: string }): Supplier {
     let sup: Supplier;
     if (supData.id) {
@@ -925,7 +1472,7 @@ class SQLiteStorageEngine {
           email: supData.email,
           gstin: supData.gstin,
           address: supData.address,
-          paymentTerms: supData.paymentTerms,
+          paymentTerms: supData.paymentTerms || 'Cash on Delivery',
           outstandingBalance: supData.outstandingBalance || 0,
           createdAt: new Date().toISOString(),
         };
@@ -947,10 +1494,25 @@ class SQLiteStorageEngine {
       this.suppliers.push(sup);
     }
     this.persistSuppliers();
+    this.addAuditLog(this.currentUser?.name || 'Gérant', 'Enregistrement Fournisseur', `Fournisseur ${sup.companyName} enregistré`);
     return sup;
   }
 
+  public recordSupplierPayment(supplierId: string, amount: number, paymentMode: string = 'Cash', notes?: string): boolean {
+    const sup = this.suppliers.find(s => s.id === supplierId);
+    if (!sup) return false;
+    const oldBalance = sup.outstandingBalance || 0;
+    sup.outstandingBalance = Math.max(0, oldBalance - amount);
+    this.persistSuppliers();
+    this.addAuditLog(this.currentUser?.name || 'Gérant', 'Règlement Fournisseur', `Paiement de ${amount} FCFA versé à ${sup.companyName} (${paymentMode})${notes ? ` - ${notes}` : ''}`);
+    return true;
+  }
+
   public deleteSupplier(id: string): boolean {
+    const sup = this.suppliers.find(s => s.id === id);
+    if (sup) {
+      this.moveToRecycleBin('Supplier', sup.id, `${sup.companyName} (${sup.name})`, sup);
+    }
     this.suppliers = this.suppliers.filter(s => s.id !== id);
     this.persistSuppliers();
     return true;
@@ -1035,6 +1597,10 @@ class SQLiteStorageEngine {
   }
 
   public deleteExpense(id: string): boolean {
+    const exp = this.expenses.find(e => e.id === id);
+    if (exp) {
+      this.moveToRecycleBin('Expense', exp.id, `${exp.title} (${exp.amount} FCFA)`, exp);
+    }
     this.expenses = this.expenses.filter(e => e.id !== id);
     this.persistExpenses();
     return true;
@@ -1794,22 +2360,35 @@ class SQLiteStorageEngine {
     return this.products
       .filter(p => p.quantity <= (p.minStockLevel || this.settings.lowStockThreshold))
       .map(p => {
-        const avgDailySales = Math.max(1, Math.round(Math.random() * 5 + 1));
+        const avgDailySales = Math.max(1, Math.round(Math.random() * 4 + 1));
         const leadTimeDays = 3;
         const maxLevel = p.maxStockLevel || 50;
         const suggestedQty = Math.max(10, maxLevel - p.quantity);
         const estimatedCost = suggestedQty * p.purchasePrice;
+        const minLevel = p.minStockLevel || this.settings.lowStockThreshold;
+        
+        let urgency: 'out_of_stock' | 'critical' | 'warning' = 'warning';
+        if (p.quantity === 0) urgency = 'out_of_stock';
+        else if (p.quantity <= Math.ceil(minLevel / 2)) urgency = 'critical';
+
+        const daysRemaining = p.quantity === 0 ? 0 : Math.max(1, Math.round(p.quantity / avgDailySales));
 
         return {
           productId: p.id,
           productName: p.name,
-          supplierName: p.supplierName,
+          category: p.category || 'Général',
+          supplierName: p.supplierName || 'Fournisseur Général',
           currentStock: p.quantity,
-          minStockLevel: p.minStockLevel || this.settings.lowStockThreshold,
+          minStockLevel: minLevel,
+          maxStockLevel: maxLevel,
           avgDailySales,
           leadTimeDays,
           suggestedQty,
+          purchasePrice: p.purchasePrice,
           estimatedCost,
+          unit: p.unit || 'unité',
+          urgency,
+          daysRemaining,
         };
       });
   }
@@ -1905,6 +2484,17 @@ class SQLiteStorageEngine {
   public emptyRecycleBin(): void {
     this.recycleBin = [];
     this.persistRecycleBin();
+    this.addAuditLog(this.currentUser?.name || 'User', 'Empty Recycle Bin', 'Purged all items from recycle bin');
+  }
+
+  public deletePermanentlyFromRecycleBin(id: string): boolean {
+    const item = this.recycleBin.find(i => i.id === id);
+    this.recycleBin = this.recycleBin.filter(i => i.id !== id);
+    this.persistRecycleBin();
+    if (item) {
+      this.addAuditLog(this.currentUser?.name || 'User', 'Permanent Delete', `Permanently deleted ${item.type}: ${item.title}`);
+    }
+    return true;
   }
 
   // --- MODULE 46: Health Diagnostics Monitor ---

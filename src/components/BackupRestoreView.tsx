@@ -1,5 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { DatabaseBackup, Download, Upload, RotateCcw, ShieldCheck, HardDrive, CheckCircle2, AlertTriangle, Trash2, Sparkles } from 'lucide-react';
+import { DatabaseBackup, Download, Upload, RotateCcw, CheckCircle2, AlertTriangle, Trash2, Sparkles, ShieldCheck } from 'lucide-react';
+import { PageHeader } from './ui/PageHeader';
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
 
 interface BackupRestoreViewProps {
   onExportBackup: () => void;
@@ -28,9 +31,9 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({
       if (content) {
         const success = onImportBackup(content);
         if (success) {
-          setStatusMsg({ type: 'success', text: 'Database successfully restored from backup file!' });
+          setStatusMsg({ type: 'success', text: 'Base de données restaurée avec succès depuis le fichier d\'archive AJOWANU !' });
         } else {
-          setStatusMsg({ type: 'error', text: 'Invalid database backup file format. Restore failed.' });
+          setStatusMsg({ type: 'error', text: 'Format de fichier d\'archive invalide ou corrompu. Restauration impossible.' });
         }
       }
     };
@@ -39,67 +42,72 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
-      
+    <div className="p-5 sm:p-7 space-y-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs">
-        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-          <DatabaseBackup className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-          Offline Database Backup & Restore Manager
-        </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-          Because this software runs 100% locally on your computer without cloud servers, generate regular backups to protect your business data.
-        </p>
-      </div>
+      <PageHeader
+        title="Sauvegardes & Restauration des Données"
+        subtitle="AJOWANU fonctionne à 100% en local et hors-ligne. Exportez régulièrement vos archives sur clé USB pour sécuriser vos comptes de caisse."
+        icon={<DatabaseBackup className="w-5 h-5 text-[#123F46]" />}
+        badge={
+          <Badge variant="teal" size="sm">
+            100% Autonome & Souverain
+          </Badge>
+        }
+      />
 
       {statusMsg && (
-        <div className={`p-4 rounded-2xl text-xs font-semibold flex items-center gap-2 ${
+        <div className={`p-4 rounded-2xl text-xs font-bold flex items-center gap-3 animate-fadeIn ${
           statusMsg.type === 'success'
-            ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200 border border-emerald-200'
-            : 'bg-rose-50 text-rose-800 dark:bg-rose-950/60 dark:text-rose-200 border border-rose-200'
+            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+            : 'bg-rose-50 text-rose-800 border border-rose-200'
         }`}>
-          {statusMsg.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
+          {statusMsg.type === 'success' ? (
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+          )}
           <span>{statusMsg.text}</span>
         </div>
       )}
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* Export Backup Card */}
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-[#ECE5D7] shadow-xs flex flex-col justify-between space-y-5">
           <div>
-            <div className="p-3 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-xl w-fit mb-3">
+            <div className="p-3 bg-[#FAF8F5] border border-[#ECE5D7] text-[#123F46] rounded-xl w-fit mb-3">
               <Download className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">
-              Export Database Backup File
+            <h3 className="font-bold text-slate-900 text-base">
+              Exporter une Archive Complète
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Download complete local SQLite database backup (<code className="font-mono bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">grocery_backup.db</code>) containing all product catalogs, stock logs, customer invoices, and shop settings.
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              Génère un fichier autonome (<code className="font-mono bg-[#FAF8F5] px-1.5 py-0.5 rounded border border-[#ECE5D7] text-slate-800">ajowanu_pos_backup.json</code>) incluant le catalogue articles, les mouvements de stocks, l'historique des ventes, les clients et la configuration.
             </p>
           </div>
 
-          <button
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            icon={<Download className="w-4 h-4" />}
             onClick={onExportBackup}
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2"
           >
-            <Download className="w-4 h-4" />
-            <span>Export Backup File Now</span>
-          </button>
+            Télécharger la Sauvegarde
+          </Button>
         </div>
 
         {/* Restore Backup Card */}
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-[#ECE5D7] shadow-xs flex flex-col justify-between space-y-5">
           <div>
-            <div className="p-3 bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 rounded-xl w-fit mb-3">
+            <div className="p-3 bg-[#FDF3F0] border border-[#D85C3A]/20 text-[#D85C3A] rounded-xl w-fit mb-3">
               <Upload className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">
-              Restore Database from File
+            <h3 className="font-bold text-slate-900 text-base">
+              Restaurer la Base de Données
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Select a previously saved backup file to restore complete inventory, products, sales history, and configuration onto this or another computer.
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              Sélectionnez une archive de secours AJOWANU pour réinjecter immédiatement l'ensemble des stocks, créances clients et rapports d'activité sur ce poste.
             </p>
           </div>
 
@@ -111,32 +119,33 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({
             className="hidden"
           />
 
-          <button
+          <Button
+            variant="secondary"
+            size="lg"
+            fullWidth
+            icon={<Upload className="w-4 h-4" />}
             onClick={() => fileInputRef.current?.click()}
-            className="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2"
           >
-            <Upload className="w-4 h-4" />
-            <span>Select & Restore Backup File</span>
-          </button>
+            Sélectionner un Fichier de Sauvegarde
+          </Button>
         </div>
-
       </div>
 
       {/* Fresh Start / Clean Slate Option for Real Store Owners */}
-      <div className="p-5 rounded-2xl bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-rose-100 dark:bg-rose-900/60 text-rose-600 dark:text-rose-400 shrink-0">
-            <Trash2 className="w-6 h-6" />
+      <div className="p-5 rounded-2xl bg-[#FFF5F5] border border-rose-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-center gap-3.5">
+          <div className="p-2.5 rounded-xl bg-rose-100 text-rose-700 shrink-0">
+            <Trash2 className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              Fresh Store Start (Wipe All Demo Data)
-              <span className="text-[10px] uppercase bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 font-extrabold px-2 py-0.5 rounded-full">
-                New Store Owner
+            <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+              <span>Démarrer avec une Boutique Vierge</span>
+              <span className="text-[10px] uppercase bg-rose-200 text-rose-900 font-extrabold px-2 py-0.5 rounded-full">
+                Mise en Production
               </span>
             </h4>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-              Permanently wipe all pre-populated sample products, sales history, demo customers, and expenses to start completely fresh for your real store.
+            <p className="text-xs text-slate-600 mt-0.5">
+              Purger l'inventaire fictif, les tickets d'exemple et les clients de test pour démarrer avec votre propre catalogue de boutique.
             </p>
           </div>
         </div>
@@ -146,87 +155,88 @@ export const BackupRestoreView: React.FC<BackupRestoreViewProps> = ({
           className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shrink-0 transition shadow-xs flex items-center gap-1.5 cursor-pointer"
         >
           <Sparkles className="w-4 h-4" />
-          Wipe Demo Data & Start Fresh
+          <span>Remise à Zéro</span>
         </button>
       </div>
 
       {/* Demo Sample Data Reset Option */}
-      <div className="p-5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <RotateCcw className="w-6 h-6 text-amber-600 shrink-0" />
+      <div className="p-5 rounded-2xl bg-white border border-[#ECE5D7] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-center gap-3.5">
+          <div className="p-2.5 rounded-xl bg-[#FAF8F5] border border-[#ECE5D7] text-slate-700 shrink-0">
+            <RotateCcw className="w-5 h-5" />
+          </div>
           <div>
-            <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-              Reset & Reload Sample Grocery Dataset
+            <h4 className="font-bold text-sm text-slate-900">
+              Recharger le Jeu de Démonstration (Commerce Bénin)
             </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Reload initial demo grocery inventory (Atta, Sunflower Oil, Tata Salt, Pulses, Biscuits) for testing purposes.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Réinjecte des articles types (Riz parfumé 25kg, Huile Dinor 5L, Savon BF, Pâtes Maman...) pour former les caissiers.
             </p>
           </div>
         </div>
 
         <button
           onClick={() => setConfirmModal('sample')}
-          className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs shrink-0 transition cursor-pointer"
+          className="px-4 py-2 bg-[#FAF8F5] hover:bg-[#ECE5D7] text-slate-800 border border-[#ECE5D7] font-bold rounded-xl text-xs shrink-0 transition cursor-pointer"
         >
-          Load Sample Demo Data
+          Recharger les Données Démo
         </button>
       </div>
 
       {/* Custom Confirmation Modal */}
       {confirmModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200 dark:border-slate-700 shadow-2xl animate-fadeIn">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <div className="fixed inset-0 z-50 bg-[#171614]/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-[#ECE5D7] shadow-2xl">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               {confirmModal === 'clear' ? (
                 <>
                   <Trash2 className="w-5 h-5 text-rose-600" />
-                  Wipe All Demo Data & Start Fresh?
+                  <span>Confirmer la remise à blanc de la boutique ?</span>
                 </>
               ) : (
                 <>
                   <RotateCcw className="w-5 h-5 text-amber-600" />
-                  Reload Sample Grocery Dataset?
+                  <span>Recharger le jeu de démonstration ?</span>
                 </>
               )}
             </h3>
 
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               {confirmModal === 'clear'
-                ? 'Are you sure you want to wipe all demo sample data? All sample products, sales history, demo customers, and expenses will be cleared so you can enter your real store data from scratch.'
-                : 'Are you sure you want to reload the initial sample grocery dataset (Atta, Sunflower Oil, Tata Salt, Pulses, Biscuits)?'}
+                ? 'Êtes-vous certain de vouloir vider toutes les données fictives ? Tous les articles de test, ventes et clients de démonstration seront purgés pour laisser place à vos vraies données de boutique.'
+                : 'Êtes-vous certain de vouloir recharger les articles d\'exemple du catalogue commerce (Riz, Huile, Savon, Pâtes, Sucre) ?'}
             </p>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2.5 pt-2">
               <button
                 type="button"
                 onClick={() => setConfirmModal(null)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-[#FAF8F5] rounded-xl transition cursor-pointer border border-[#ECE5D7]"
               >
-                Cancel
+                Annuler
               </button>
               <button
                 type="button"
                 onClick={() => {
                   if (confirmModal === 'clear') {
                     onClearAllData();
-                    setStatusMsg({ type: 'success', text: 'Clean slate activated! All demo sample data wiped. You can now add your real store products!' });
+                    setStatusMsg({ type: 'success', text: 'Base de données réinitialisée à blanc avec succès ! Vous pouvez commencer à enregistrer vos articles réels.' });
                   } else {
                     onResetToSampleData();
-                    setStatusMsg({ type: 'success', text: 'Database reset to sample grocery items!' });
+                    setStatusMsg({ type: 'success', text: 'Jeu de démonstration AJOWANU chargé avec succès !' });
                   }
                   setConfirmModal(null);
                 }}
                 className={`px-4 py-2 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer ${
-                  confirmModal === 'clear' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-amber-600 hover:bg-amber-700'
+                  confirmModal === 'clear' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[#123F46] hover:bg-[#0E3238]'
                 }`}
               >
-                {confirmModal === 'clear' ? 'Yes, Wipe & Start Fresh' : 'Yes, Reload Sample Data'}
+                {confirmModal === 'clear' ? 'Oui, effacer et démarrer' : 'Oui, charger la démo'}
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };

@@ -51,6 +51,8 @@ import { RecycleBinView } from './components/RecycleBinView';
 import { HealthMonitorView } from './components/HealthMonitorView';
 import { PriceHistoryView } from './components/PriceHistoryView';
 import { UpiSettingsSection } from './components/UpiSettingsSection';
+import { PageHeader } from './components/ui/PageHeader';
+import { Badge } from './components/ui/Badge';
 
 import { Store, Phone, MapPin, FileText, CheckCircle } from 'lucide-react';
 
@@ -172,7 +174,7 @@ export default function App() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `grocery_pos_backup_${new Date().toISOString().split('T')[0]}.json`);
+      link.setAttribute('download', `ajowanu_pos_backup_${new Date().toISOString().split('T')[0]}.json`);
       document.body.appendChild(link);
       link.click();
       setTimeout(() => {
@@ -218,7 +220,7 @@ export default function App() {
   const lowStockProducts = products.filter(p => p.quantity <= (p.minStockLevel || settings.lowStockThreshold));
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-slate-100 text-slate-800 flex flex-col font-sans select-none antialiased">
+    <div className="h-screen w-screen overflow-hidden bg-[#F6F4EE] text-slate-800 flex flex-col font-sans select-none antialiased">
       
       {/* Top Application Navbar Titlebar */}
       <NavbarHeader
@@ -404,125 +406,139 @@ export default function App() {
           )}
 
           {activeTab === 'settings' && (
-            <div className="p-6 max-w-3xl mx-auto space-y-6">
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs space-y-4">
-                <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3">
-                  Shop Profile & Invoice Settings
-                </h2>
+            <div className="p-5 sm:p-7 max-w-4xl mx-auto space-y-6">
+              <PageHeader
+                title="Profil Commercial & Paramètres"
+                subtitle="Identité de l'établissement, en-tête des tickets thermiques et seuils de réapprovisionnement."
+                icon={<Store className="w-5 h-5 text-[#D85C3A]" />}
+                badge={
+                  <Badge variant="teal" size="sm">
+                    Stockage Local Sécurisé
+                  </Badge>
+                }
+              />
 
-                <div className="grid grid-cols-2 gap-4 text-xs">
+              <div className="bg-white p-6 rounded-2xl border border-[#ECE5D7] shadow-xs space-y-5">
+                <div className="flex items-center justify-between border-b border-[#ECE5D7] pb-3">
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <span>Coordonnées & Fiscalité</span>
+                  </h3>
+                  <span className="text-[11px] text-slate-400 font-medium">Imprimé sur les tickets & factures</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   <div>
-                    <label className="block font-semibold mb-1">Shop Name</label>
+                    <label className="block font-bold mb-1.5 text-slate-700">Nom de la Boutique / Enseigne</label>
                     <input
                       type="text"
                       value={settings.shopName}
                       onChange={e => handleUpdateSettings({ shopName: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl"
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-slate-300 rounded-xl outline-none focus:border-[#D85C3A] text-slate-900 font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1">Owner Name</label>
+                    <label className="block font-bold mb-1.5 text-slate-700">Nom du Gérant / Propriétaire</label>
                     <input
                       type="text"
                       value={settings.ownerName}
                       onChange={e => handleUpdateSettings({ ownerName: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl"
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-slate-300 rounded-xl outline-none focus:border-[#D85C3A] text-slate-900 font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1">Phone Number</label>
+                    <label className="block font-bold mb-1.5 text-slate-700">Téléphone de contact / WhatsApp</label>
                     <input
                       type="text"
                       value={settings.phone}
                       onChange={e => handleUpdateSettings({ phone: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl"
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-slate-300 rounded-xl outline-none focus:border-[#D85C3A] font-mono text-slate-900 font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1">GSTIN Number</label>
+                    <label className="block font-bold mb-1.5 text-slate-700">N° IFU / RCCM (Fiscalité)</label>
                     <input
                       type="text"
                       value={settings.gstNumber || ''}
                       onChange={e => handleUpdateSettings({ gstNumber: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl"
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-slate-300 rounded-xl outline-none focus:border-[#D85C3A] font-mono text-slate-900 font-medium"
                     />
                   </div>
 
-                  <div className="col-span-2">
-                    <label className="block font-semibold mb-1">Shop Address</label>
+                  <div className="md:col-span-2">
+                    <label className="block font-bold mb-1.5 text-slate-700">Adresse géographique</label>
                     <input
                       type="text"
                       value={settings.address}
                       onChange={e => handleUpdateSettings({ address: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl"
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-slate-300 rounded-xl outline-none focus:border-[#D85C3A] text-slate-900 font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1">Low Stock Limit Warning</label>
+                    <label className="block font-bold mb-1.5 text-slate-700">Alerte stock bas (quantité minimale)</label>
                     <input
                       type="number"
                       value={settings.lowStockThreshold}
                       onChange={e => handleUpdateSettings({ lowStockThreshold: parseInt(e.target.value) || 10 })}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl font-mono"
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-slate-300 rounded-xl font-mono-data outline-none focus:border-[#D85C3A] text-slate-900 font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1">Default Tax / GST (%)</label>
+                    <label className="block font-bold mb-1.5 text-slate-700">Taux de TVA par défaut (%)</label>
                     <input
                       type="number"
                       value={settings.defaultTaxPercent}
                       onChange={e => handleUpdateSettings({ defaultTaxPercent: parseFloat(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl font-mono"
+                      className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-slate-300 rounded-xl font-mono-data outline-none focus:border-[#D85C3A] text-slate-900 font-medium"
                     />
                   </div>
                 </div>
 
-                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 text-xs text-emerald-800 dark:text-emerald-200 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <span>Settings automatically saved into local SQLite database.</span>
+                <div className="p-3 bg-[#FAF8F5] rounded-xl border border-[#ECE5D7] text-xs text-slate-600 flex items-center gap-2.5">
+                  <CheckCircle className="w-4 h-4 text-[#123F46] shrink-0" />
+                  <span>Modifications sauvegardées automatiquement dans la base de données locale.</span>
                 </div>
               </div>
 
-              {/* Dynamic UPI Payment Settings Card */}
+              {/* Dynamic Mobile Money & QR Payment Settings Card */}
               <UpiSettingsSection
                 settings={settings}
                 onUpdateSettings={handleUpdateSettings}
               />
 
               {/* Fresh Start Store Deployment Card */}
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-rose-200 dark:border-rose-900/60 shadow-xs space-y-3">
-                <h3 className="text-sm font-bold text-rose-700 dark:text-rose-400 flex items-center gap-2">
-                  Store Data Reset & Fresh Start
+              <div className="bg-white p-6 rounded-2xl border border-rose-200 shadow-xs space-y-3">
+                <h3 className="text-sm font-bold text-rose-700 flex items-center gap-2">
+                  Réinitialisation des données & Mise en production
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  If you are deploying this software for a brand new shop owner, click below to wipe all demo sample data (products, sales history, demo customers) so they can start entering real inventory from scratch.
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Pour installer le logiciel chez un commerçant réel, vous pouvez purger toutes les données de test (produits d'exemple, historique de vente, clients démo) afin de démarrer un inventaire réel vierge.
                 </p>
 
                 {settingsToast && (
-                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 dark:text-emerald-200 animate-fadeIn">
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800 animate-fadeIn">
                     {settingsToast}
                   </div>
                 )}
 
-                <div className="flex gap-2 pt-1">
+                <div className="flex flex-wrap gap-2.5 pt-1">
                   <button
                     type="button"
                     onClick={() => setSettingsResetModal('clear')}
                     className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer"
                   >
-                    Wipe Demo Data & Start Fresh
+                    Vider les données démo & Démarrer à zéro
                   </button>
                   <button
                     type="button"
                     onClick={() => setSettingsResetModal('sample')}
-                    className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition cursor-pointer"
+                    className="px-4 py-2 bg-[#FAF8F5] hover:bg-[#ECE5D7] text-slate-800 font-bold text-xs rounded-xl transition cursor-pointer border border-[#ECE5D7]"
                   >
-                    Load Demo Data
+                    Recharger les données démo (Bénin)
                   </button>
                 </div>
               </div>
@@ -531,44 +547,44 @@ export default function App() {
 
           {/* Settings Reset Confirmation Modal */}
           {settingsResetModal && (
-            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200 dark:border-slate-700 shadow-2xl animate-fadeIn">
-                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  {settingsResetModal === 'clear' ? 'Wipe All Demo Data & Start Fresh?' : 'Reload Sample Grocery Dataset?'}
+            <div className="fixed inset-0 z-50 bg-[#111827]/60 backdrop-blur-xs flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 border border-[#ECE5D7] shadow-2xl animate-fadeIn">
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  {settingsResetModal === 'clear' ? 'Purger toutes les données démo ?' : 'Recharger les données démo locales ?'}
                 </h3>
 
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   {settingsResetModal === 'clear'
-                    ? 'Are you sure you want to wipe all demo sample data? All sample products, sales history, customers, and expenses will be cleared so you can enter your real store data from scratch.'
-                    : 'Are you sure you want to reload the initial sample grocery dataset (Atta, Sunflower Oil, Tata Salt, etc.)?'}
+                    ? 'Êtes-vous sûr de vouloir supprimer les données d\'exemple ? Les produits tests, clients et ventes démo seront effacés pour vous permettre de saisir les vrais stocks du magasin.'
+                    : 'Êtes-vous sûr de vouloir recharger les articles démo (Riz Parfumé, Huile Mayor, Gari Sohoui, Savon BF, etc.) ?'}
                 </p>
 
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setSettingsResetModal(null)}
-                    className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition cursor-pointer"
+                    className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer"
                   >
-                    Cancel
+                    Annuler
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       if (settingsResetModal === 'clear') {
                         handleClearAllDataForFreshStart();
-                        setSettingsToast('All demo data wiped! You now have a 100% clean slate to enter real store data.');
+                        setSettingsToast('Toutes les données démo ont été purgées ! Vous avez une base propre.');
                       } else {
                         handleResetToSampleData();
-                        setSettingsToast('Sample grocery dataset loaded into local database.');
+                        setSettingsToast('Jeux d\'échantillons locaux AJOWANU chargé dans la base.');
                       }
                       setSettingsResetModal(null);
                       setTimeout(() => setSettingsToast(null), 4000);
                     }}
                     className={`px-4 py-2 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer ${
-                      settingsResetModal === 'clear' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-slate-800 hover:bg-slate-900'
+                      settingsResetModal === 'clear' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[#D85C3A] hover:bg-[#C24B2B]'
                     }`}
                   >
-                    {settingsResetModal === 'clear' ? 'Yes, Wipe & Start Fresh' : 'Yes, Load Demo Data'}
+                    {settingsResetModal === 'clear' ? 'Oui, purger et démarrer propre' : 'Oui, charger les données démo'}
                   </button>
                 </div>
               </div>

@@ -2,8 +2,8 @@
   "name": "grocery-pos-desktop",
   "private": true,
   "version": "1.0.0",
-  "description": "Grocery POS & Inventory Management Software",
-  "author": "Your Name or Organization",
+  "description": "AJOWANU — La technologie de votre commerce. Logiciel professionnel de gestion de commerce et point de vente.",
+  "author": "AJOWANU",
   "main": "electron/main.js",
   "type": "module",
   "scripts": {
@@ -17,9 +17,9 @@
     "electron:pack": "electron-builder --dir"
   },
   "build": {
-    "appId": "com.localbusiness.grocerypos",
-    "productName": "Grocery POS & Inventory Software",
-    "copyright": "Copyright © 2026 Your Name or Organization",
+    "appId": "com.ajowanu.pos",
+    "productName": "AJOWANU",
+    "copyright": "Copyright © 2026 AJOWANU. Tous droits réservés.",
     "directories": {
       "output": "release"
     },
@@ -46,8 +46,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Grocery POS & Inventory Software",
-      "uninstallDisplayName": "Grocery POS & Inventory Software"
+      "shortcutName": "AJOWANU",
+      "uninstallDisplayName": "AJOWANU — La technologie de votre commerce"
     }
   },
   "dependencies": {

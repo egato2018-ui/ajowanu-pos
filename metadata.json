@@ -1,6 +1,6 @@
 {
-  "name": "Offline Grocery POS & Inventory",
-  "description": "Desktop POS, Inventory, Billing, and Stock Management System for Grocery Shops",
+  "name": "AJOWANU",
+  "description": "AJOWANU — La technologie de votre commerce. Logiciel professionnel de point de vente et gestion de stock.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Sale, ShopSettings } from '../types';
-import { Printer, Download, X, CheckCircle, FileText, ShoppingBag, AlertCircle } from 'lucide-react';
+import { formatFCFA, formatDateFR, formatDateTimeFR } from '../utils/formatters';
+import { Printer, Download, X, CheckCircle, ShoppingBag, AlertCircle, Store, ShieldCheck, Barcode } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
 interface InvoiceModalProps {
@@ -22,56 +23,30 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
   if (!isOpen || !sale) return null;
 
-  const currency = settings.currencySymbol || '₹';
+  const currency = settings.currencySymbol || 'FCFA';
 
-  // Native window printing trigger with full debugging, ref check, and fallback
+  const getPaymentModeLabel = (mode: string) => {
+    switch (mode) {
+      case 'Cash': return 'Espèces';
+      case 'UPI': return 'Mobile Money / QR';
+      case 'Card': return 'Carte bancaire';
+      case 'Credit': return 'Crédit client';
+      default: return mode;
+    }
+  };
+
   const handlePrint = () => {
     setPrintError(null);
-    console.log('[InvoicePrint] Step 1: Print Receipt button clicked.');
-
-    // 1. Verify invoice data exists
-    if (!sale) {
-      const msg = 'Print Error: Invoice sale data is missing or null.';
-      console.error('[InvoicePrint]', msg);
-      setPrintError(msg);
-      return;
-    }
-
-    console.log('[InvoicePrint] Step 2: Sale data verified.', {
-      invoiceNumber: sale.invoiceNumber,
-      itemsCount: sale.items?.length,
-      totalAmount: sale.totalAmount,
-      customer: sale.customerName,
-    });
-
-    // 2. Verify invoice reference (ref) and DOM rendering
     const elem = printableAreaRef.current || document.querySelector('.printable-area');
-    if (!elem) {
-      const msg = 'Print Error: Invoice DOM element reference (ref) is missing or not rendered.';
-      console.error('[InvoicePrint]', msg);
-      setPrintError(msg);
+    if (!elem || !elem.innerHTML || elem.innerHTML.trim().length === 0) {
+      setPrintError('Impossible de trouver le contenu du ticket à imprimer.');
       return;
     }
-
-    console.log('[InvoicePrint] Step 3: Printable DOM element reference verified.', elem);
-
-    // 3. Ensure HTML content exists
-    if (!elem.innerHTML || elem.innerHTML.trim().length === 0) {
-      const msg = 'Print Error: Invoice rendered HTML content is empty.';
-      console.error('[InvoicePrint]', msg);
-      setPrintError(msg);
-      return;
-    }
-
-    console.log('[InvoicePrint] Step 4: Initiating window.print()...');
 
     try {
       window.focus();
       window.print();
-      console.log('[InvoicePrint] Step 5: window.print() invoked successfully.');
     } catch (primaryErr: any) {
-      console.warn('[InvoicePrint] Standard window.print() failed, attempting iframe popup print fallback:', primaryErr);
-
       try {
         let printFrame = document.getElementById('invoice-print-frame') as HTMLIFrameElement;
         if (!printFrame) {
@@ -93,7 +68,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             <!DOCTYPE html>
             <html>
               <head>
-                <title>Invoice - ${sale.invoiceNumber}</title>
+                <title>Facture - ${sale.invoiceNumber}</title>
                 <style>
                   body { font-family: monospace, sans-serif; margin: 15px; color: #000; background: #fff; }
                   table { width: 100%; border-collapse: collapse; }
@@ -115,285 +90,257 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             try {
               printFrame.contentWindow?.focus();
               printFrame.contentWindow?.print();
-              console.log('[InvoicePrint] Step 5: Fallback iframe print triggered successfully.');
             } catch (fallbackErr: any) {
-              console.error('[InvoicePrint] Fallback print failed:', fallbackErr);
-              setPrintError(`Print operation blocked by browser sandbox: ${fallbackErr?.message || 'Unknown error'}`);
+              setPrintError(`Impression bloquée par le navigateur : ${fallbackErr?.message || 'Erreur inconnue'}`);
             }
           }, 300);
-        } else {
-          throw new Error('Unable to write to fallback print document frame.');
         }
       } catch (err: any) {
-        console.error('[InvoicePrint] All print execution paths failed:', err);
-        setPrintError(`Printing failed: ${err?.message || 'Browser prevented print execution.'}`);
+        setPrintError(`Erreur lors de l'impression : ${err?.message || 'Erreur inconnue'}`);
       }
     }
   };
 
-  // PDF Download using jsPDF with error handling and console logging
   const handleDownloadPDF = () => {
     setPrintError(null);
-    console.log('[InvoicePDF] Step 1: Save PDF button clicked.');
-
-    if (!sale) {
-      const msg = 'PDF Error: Sale data is missing.';
-      console.error('[InvoicePDF]', msg);
-      setPrintError(msg);
-      return;
-    }
-
-    console.log('[InvoicePDF] Step 2: Building PDF for invoice:', sale.invoiceNumber);
+    if (!sale) return;
 
     try {
+      const isThermal = printFormat === 'thermal';
       const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: printFormat === 'thermal' ? [80, 220] : 'a4',
+        format: isThermal ? [80, 220 + sale.items.length * 7] : 'a4',
       });
 
-    const font = 'helvetica';
-    let y = 10;
+      const font = 'helvetica';
+      let y = 10;
 
-    if (printFormat === 'thermal') {
-      doc.setFont(font, 'bold');
-      doc.setFontSize(12);
-      doc.text(settings.shopName, 40, y, { align: 'center' });
-      y += 5;
-
-      doc.setFont(font, 'normal');
-      doc.setFontSize(8);
-      if (settings.address) {
-        const addrLines = doc.splitTextToSize(settings.address, 70);
-        doc.text(addrLines, 40, y, { align: 'center' });
-        y += addrLines.length * 3.5;
-      }
-      if (settings.phone) {
-        doc.text(`Ph: ${settings.phone}`, 40, y, { align: 'center' });
-        y += 4;
-      }
-      if (settings.gstNumber) {
-        doc.text(`GSTIN: ${settings.gstNumber}`, 40, y, { align: 'center' });
-        y += 4;
-      }
-
-      doc.line(5, y, 75, y);
-      y += 5;
-
-      doc.setFont(font, 'bold');
-      doc.text(`Invoice: ${sale.invoiceNumber}`, 5, y);
-      doc.setFont(font, 'normal');
-      doc.text(new Date(sale.dateTime).toLocaleString(), 75, y, { align: 'right' });
-      y += 4;
-
-      if (sale.customerName) {
-        doc.text(`Customer: ${sale.customerName} (${sale.customerPhone || 'N/A'})`, 5, y);
-        y += 4;
-      }
-
-      doc.line(5, y, 75, y);
-      y += 4;
-
-      // Table Header
-      doc.setFont(font, 'bold');
-      doc.text('Item', 5, y);
-      doc.text('Qty x Rate', 45, y);
-      doc.text('Amt', 75, y, { align: 'right' });
-      y += 4;
-
-      doc.setFont(font, 'normal');
-      sale.items.forEach(item => {
-        const nameText = item.productName.length > 20 ? item.productName.substring(0, 18) + '..' : item.productName;
-        doc.text(nameText, 5, y);
-        doc.text(`${item.quantity} x ${currency}${item.unitSellingPrice}`, 45, y);
-        doc.text(`${currency}${item.totalPrice}`, 75, y, { align: 'right' });
-        y += 4;
-      });
-
-      doc.line(5, y, 75, y);
-      y += 4;
-
-      doc.text(`Subtotal:`, 45, y);
-      doc.text(`${currency}${sale.subtotal}`, 75, y, { align: 'right' });
-      y += 4;
-
-      if (sale.discountAmount > 0) {
-        doc.text(`Discount:`, 45, y);
-        doc.text(`-${currency}${sale.discountAmount}`, 75, y, { align: 'right' });
-        y += 4;
-      }
-
-      if (sale.taxAmount > 0) {
-        doc.text(`Tax (${sale.taxPercent}%):`, 45, y);
-        doc.text(`${currency}${sale.taxAmount.toFixed(2)}`, 75, y, { align: 'right' });
-        y += 4;
-      }
-
-      doc.setFont(font, 'bold');
-      doc.setFontSize(10);
-      doc.text(`TOTAL:`, 45, y);
-      doc.text(`${currency}${sale.totalAmount}`, 75, y, { align: 'right' });
-      y += 5;
-
-      doc.setFontSize(8);
-      doc.setFont(font, 'normal');
-      doc.text(`Paid via ${sale.paymentMode}`, 5, y);
-      if (sale.paymentMode === 'Cash' && sale.receivedAmount) {
-        doc.text(`Received: ${currency}${sale.receivedAmount} | Change: ${currency}${sale.changeAmount}`, 75, y, { align: 'right' });
-      }
-      y += 6;
-
-      doc.text('Thank you! Visit again.', 40, y, { align: 'center' });
-    } else {
-      // A4 Format
-      doc.setFont(font, 'bold');
-      doc.setFontSize(20);
-      doc.text(settings.shopName, 15, y);
-      y += 7;
-
-      doc.setFontSize(9);
-      doc.setFont(font, 'normal');
-      if (settings.address) doc.text(settings.address, 15, y), y += 4;
-      if (settings.phone) doc.text(`Phone: ${settings.phone}`, 15, y), y += 4;
-      if (settings.gstNumber) doc.text(`GSTIN: ${settings.gstNumber}`, 15, y), y += 4;
-
-      doc.setFont(font, 'bold');
-      doc.setFontSize(16);
-      doc.text('TAX INVOICE', 195, 15, { align: 'right' });
-      doc.setFontSize(10);
-      doc.setFont(font, 'normal');
-      doc.text(`Invoice No: ${sale.invoiceNumber}`, 195, 22, { align: 'right' });
-      doc.text(`Date: ${new Date(sale.dateTime).toLocaleString()}`, 195, 27, { align: 'right' });
-
-      y += 5;
-      doc.line(15, y, 195, y);
-      y += 8;
-
-      if (sale.customerName) {
+      if (isThermal) {
         doc.setFont(font, 'bold');
-        doc.text('Customer Details:', 15, y);
-        y += 4;
+        doc.setFontSize(13);
+        doc.text(settings.shopName || 'Boutique AJOWANU', 40, y, { align: 'center' });
+        y += 5;
+
+        doc.setFontSize(8);
         doc.setFont(font, 'normal');
-        doc.text(`Name: ${sale.customerName}`, 15, y);
-        if (sale.customerPhone) doc.text(`Phone: ${sale.customerPhone}`, 100, y);
-        y += 8;
-      }
+        if (settings.address) { doc.text(settings.address, 40, y, { align: 'center' }); y += 4; }
+        if (settings.phone) { doc.text(`Tél : ${settings.phone}`, 40, y, { align: 'center' }); y += 4; }
+        if (settings.gstNumber) { doc.text(`IFU : ${settings.gstNumber}`, 40, y, { align: 'center' }); y += 4; }
 
-      // Table Header
-      doc.setFillColor(240, 240, 240);
-      doc.rect(15, y, 180, 8, 'F');
-      doc.setFont(font, 'bold');
-      doc.text('#', 18, y + 5.5);
-      doc.text('Product Name', 30, y + 5.5);
-      doc.text('Barcode', 100, y + 5.5);
-      doc.text('Unit Price', 130, y + 5.5);
-      doc.text('Qty', 160, y + 5.5);
-      doc.text('Total', 190, y + 5.5, { align: 'right' });
-      y += 10;
+        doc.setLineDashPattern([1, 1], 0);
+        doc.line(5, y, 75, y);
+        y += 4;
 
-      doc.setFont(font, 'normal');
-      sale.items.forEach((item, idx) => {
-        doc.text(`${idx + 1}`, 18, y);
-        doc.text(item.productName.substring(0, 35), 30, y);
-        doc.text(item.barcode, 100, y);
-        doc.text(`${currency}${item.unitSellingPrice}`, 130, y);
-        doc.text(`${item.quantity}`, 160, y);
-        doc.text(`${currency}${item.totalPrice}`, 190, y, { align: 'right' });
+        doc.text(`Facture N° : ${sale.invoiceNumber}`, 5, y);
+        y += 4;
+        doc.text(`Date : ${formatDateTimeFR(sale.dateTime)}`, 5, y);
+        y += 4;
+        if (sale.customerName) {
+          doc.text(`Client : ${sale.customerName}`, 5, y);
+          y += 4;
+        }
+
+        doc.line(5, y, 75, y);
+        y += 4;
+
+        doc.setFont(font, 'bold');
+        doc.text('Article', 5, y);
+        doc.text('Qté x Prix', 45, y);
+        doc.text('Total', 75, y, { align: 'right' });
+        y += 4;
+
+        doc.setFont(font, 'normal');
+        sale.items.forEach(item => {
+          const nameText = item.productName.length > 20 ? item.productName.substring(0, 18) + '..' : item.productName;
+          doc.text(nameText, 5, y);
+          doc.text(`${item.quantity} x ${item.unitSellingPrice}`, 45, y);
+          doc.text(`${item.totalPrice} ${currency}`, 75, y, { align: 'right' });
+          y += 4;
+        });
+
+        doc.line(5, y, 75, y);
+        y += 4;
+
+        doc.text(`Sous-total :`, 45, y);
+        doc.text(`${sale.subtotal} ${currency}`, 75, y, { align: 'right' });
+        y += 4;
+
+        if (sale.discountAmount > 0) {
+          doc.text(`Remise :`, 45, y);
+          doc.text(`-${sale.discountAmount} ${currency}`, 75, y, { align: 'right' });
+          y += 4;
+        }
+
+        if (sale.taxAmount > 0) {
+          doc.text(`TVA (${sale.taxPercent}%) :`, 45, y);
+          doc.text(`${sale.taxAmount.toFixed(0)} ${currency}`, 75, y, { align: 'right' });
+          y += 4;
+        }
+
+        doc.setFont(font, 'bold');
+        doc.setFontSize(10);
+        doc.text(`TOTAL :`, 45, y);
+        doc.text(`${sale.totalAmount} ${currency}`, 75, y, { align: 'right' });
+        y += 5;
+
+        doc.setFontSize(8);
+        doc.setFont(font, 'normal');
+        doc.text(`Règlement : ${getPaymentModeLabel(sale.paymentMode)}`, 5, y);
+        if (sale.paymentMode === 'Cash' && sale.receivedAmount) {
+          doc.text(`Reçu : ${sale.receivedAmount} | Rendu : ${sale.changeAmount}`, 75, y, { align: 'right' });
+        }
         y += 6;
-      });
 
-      y += 4;
-      doc.line(15, y, 195, y);
-      y += 8;
+        doc.text('Merci de votre confiance ! À bientôt.', 40, y, { align: 'center' });
+      } else {
+        // A4 Format
+        doc.setFont(font, 'bold');
+        doc.setFontSize(18);
+        doc.text(settings.shopName || 'Boutique AJOWANU', 15, y);
+        y += 7;
 
-      doc.text(`Subtotal:`, 140, y);
-      doc.text(`${currency}${sale.subtotal}`, 190, y, { align: 'right' });
-      y += 5;
+        doc.setFontSize(9);
+        doc.setFont(font, 'normal');
+        if (settings.address) { doc.text(settings.address, 15, y); y += 4; }
+        if (settings.phone) { doc.text(`Tél : ${settings.phone}`, 15, y); y += 4; }
+        if (settings.gstNumber) { doc.text(`IFU : ${settings.gstNumber}`, 15, y); y += 4; }
 
-      if (sale.discountAmount > 0) {
-        doc.text(`Discount:`, 140, y);
-        doc.text(`-${currency}${sale.discountAmount}`, 190, y, { align: 'right' });
+        doc.setFont(font, 'bold');
+        doc.setFontSize(15);
+        doc.text('FACTURE DE VENTE', 195, 15, { align: 'right' });
+        doc.setFontSize(10);
+        doc.setFont(font, 'normal');
+        doc.text(`Facture N° : ${sale.invoiceNumber}`, 195, 22, { align: 'right' });
+        doc.text(`Date : ${formatDateTimeFR(sale.dateTime)}`, 195, 27, { align: 'right' });
+
+        y += 6;
+        doc.line(15, y, 195, y);
+        y += 8;
+
+        if (sale.customerName) {
+          doc.setFont(font, 'bold');
+          doc.text('Informations Client :', 15, y);
+          y += 4;
+          doc.setFont(font, 'normal');
+          doc.text(`Nom : ${sale.customerName}`, 15, y);
+          if (sale.customerPhone) doc.text(`Téléphone : ${sale.customerPhone}`, 100, y);
+          y += 8;
+        }
+
+        // Table Header
+        doc.setFillColor(245, 243, 239);
+        doc.rect(15, y, 180, 8, 'F');
+        doc.setFont(font, 'bold');
+        doc.text('N°', 18, y + 5.5);
+        doc.text('Désignation Article', 30, y + 5.5);
+        doc.text('Code-barres', 100, y + 5.5);
+        doc.text('Prix Unit.', 130, y + 5.5);
+        doc.text('Qté', 160, y + 5.5);
+        doc.text('Total', 190, y + 5.5, { align: 'right' });
+        y += 10;
+
+        doc.setFont(font, 'normal');
+        sale.items.forEach((item, idx) => {
+          doc.text(`${idx + 1}`, 18, y);
+          doc.text(item.productName.substring(0, 35), 30, y);
+          doc.text(item.barcode || '-', 100, y);
+          doc.text(`${item.unitSellingPrice} ${currency}`, 130, y);
+          doc.text(`${item.quantity}`, 160, y);
+          doc.text(`${item.totalPrice} ${currency}`, 190, y, { align: 'right' });
+          y += 6;
+        });
+
+        y += 4;
+        doc.line(15, y, 195, y);
+        y += 8;
+
+        doc.text(`Sous-total :`, 140, y);
+        doc.text(`${sale.subtotal} ${currency}`, 190, y, { align: 'right' });
         y += 5;
+
+        if (sale.discountAmount > 0) {
+          doc.text(`Remise :`, 140, y);
+          doc.text(`-${sale.discountAmount} ${currency}`, 190, y, { align: 'right' });
+          y += 5;
+        }
+
+        if (sale.taxAmount > 0) {
+          doc.text(`TVA (${sale.taxPercent}%) :`, 140, y);
+          doc.text(`${sale.taxAmount.toFixed(0)} ${currency}`, 190, y, { align: 'right' });
+          y += 5;
+        }
+
+        doc.setFont(font, 'bold');
+        doc.setFontSize(12);
+        doc.text(`NET À PAYER :`, 140, y);
+        doc.text(`${sale.totalAmount} ${currency}`, 190, y, { align: 'right' });
+        y += 10;
+
+        doc.setFontSize(9);
+        doc.setFont(font, 'normal');
+        doc.text(`Mode de paiement : ${getPaymentModeLabel(sale.paymentMode)}`, 15, y);
+        if (sale.paymentMode === 'Cash' && sale.receivedAmount) {
+          doc.text(`Montant versé : ${sale.receivedAmount} ${currency} | Monnaie rendue : ${sale.changeAmount} ${currency}`, 15, y + 4);
+        }
+
+        doc.text('Cachet / Signature autorisée', 195, y + 15, { align: 'right' });
       }
 
-      if (sale.taxAmount > 0) {
-        doc.text(`Tax (${sale.taxPercent}%):`, 140, y);
-        doc.text(`${currency}${sale.taxAmount.toFixed(2)}`, 190, y, { align: 'right' });
-        y += 5;
-      }
-
-      doc.setFont(font, 'bold');
-      doc.setFontSize(12);
-      doc.text(`Grand Total:`, 140, y);
-      doc.text(`${currency}${sale.totalAmount}`, 190, y, { align: 'right' });
-      y += 10;
-
-      doc.setFontSize(9);
-      doc.setFont(font, 'normal');
-      doc.text(`Payment Method: ${sale.paymentMode}`, 15, y);
-      if (sale.paymentMode === 'Cash' && sale.receivedAmount) {
-        doc.text(`Amount Paid: ${currency}${sale.receivedAmount} | Change Returned: ${currency}${sale.changeAmount}`, 15, y + 4);
-      }
-
-      doc.text('Authorized Signatory / Stamp', 195, y + 15, { align: 'right' });
+      doc.save(`${sale.invoiceNumber}.pdf`);
+    } catch (pdfErr: any) {
+      setPrintError(`Erreur lors de la création du PDF : ${pdfErr?.message || 'Erreur inconnue'}`);
     }
-
-    doc.save(`${sale.invoiceNumber}.pdf`);
-    console.log('[InvoicePDF] Step 3: PDF generated and saved successfully:', `${sale.invoiceNumber}.pdf`);
-  } catch (pdfErr: any) {
-    console.error('[InvoicePDF] PDF generation error:', pdfErr);
-    setPrintError(`PDF Generation Failed: ${pdfErr?.message || 'An error occurred while building the PDF file.'}`);
-  }
-};
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-150 my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111827]/70 backdrop-blur-sm p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl border border-[#ECE5D7] w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-150 my-auto">
         
         {/* Modal Top Toolbar */}
-        <div className="no-print flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
+        <div className="no-print flex items-center justify-between p-4 border-b border-[#ECE5D7] bg-[#F6F1E7]">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl">
+            <div className="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
               <CheckCircle className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-base">
-                Invoice {sale.invoiceNumber}
+              <h3 className="font-semibold text-slate-800 text-base">
+                Facture {sale.invoiceNumber}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Transaction Completed • {new Date(sale.dateTime).toLocaleString()}
+              <p className="text-xs text-slate-500">
+                Vente enregistrée avec succès • {formatDateTimeFR(sale.dateTime)}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Receipt format toggle */}
-            <div className="bg-slate-200 dark:bg-slate-700 p-0.5 rounded-xl flex text-xs font-medium">
+            <div className="bg-white border border-[#ECE5D7] p-0.5 rounded-xl flex text-xs font-medium">
               <button
                 onClick={() => setPrintFormat('thermal')}
-                className={`px-2.5 py-1 rounded-lg transition ${
+                className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
                   printFormat === 'thermal'
-                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                    ? 'bg-[#123F46] text-white shadow-xs font-semibold'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Thermal (80mm)
+                Ticket (80mm)
               </button>
               <button
                 onClick={() => setPrintFormat('a4')}
-                className={`px-2.5 py-1 rounded-lg transition ${
+                className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
                   printFormat === 'a4'
-                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                    ? 'bg-[#123F46] text-white shadow-xs font-semibold'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                A4 Standard
+                Format A4
               </button>
             </div>
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -401,171 +348,344 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         </div>
 
         {/* Printable Receipt Body */}
-        <div className="p-6 overflow-y-auto max-h-[70vh] bg-slate-50 dark:bg-slate-900/50">
+        <div className="p-6 overflow-y-auto max-h-[70vh] bg-[#FAF7F2] flex justify-center">
           <div
             ref={printableAreaRef}
-            className={`printable-area mx-auto bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 ${
-              printFormat === 'thermal' ? 'max-w-[340px] text-xs font-mono' : 'max-w-xl text-sm font-sans'
+            className={`printable-area w-full bg-white text-slate-800 shadow-md border border-[#E7DECD] ${
+              printFormat === 'thermal'
+                ? 'max-w-[360px] p-5 rounded-2xl text-xs font-mono select-none'
+                : 'max-w-2xl p-8 rounded-2xl text-sm font-sans'
             }`}
           >
-            {/* Header */}
-            <div className="text-center pb-4 border-b border-dashed border-slate-300 dark:border-slate-600">
-              <div className="flex justify-center items-center gap-2 mb-1">
-                <ShoppingBag className="w-5 h-5 text-emerald-600 no-print" />
-                <h2 className="font-bold text-lg text-slate-900 dark:text-slate-100 tracking-tight">
-                  {settings.shopName}
-                </h2>
-              </div>
-              <p className="text-slate-500 dark:text-slate-400 text-xs">{settings.address}</p>
-              {settings.phone && <p className="text-slate-500 dark:text-slate-400 text-xs">Phone: {settings.phone}</p>}
-              {settings.gstNumber && <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold mt-0.5">GSTIN: {settings.gstNumber}</p>}
-            </div>
-
-            {/* Bill Meta */}
-            <div className="py-3 border-b border-dashed border-slate-300 dark:border-slate-600 flex justify-between items-center text-xs text-slate-600 dark:text-slate-400">
-              <div>
-                <p><span className="font-semibold text-slate-800 dark:text-slate-200">Invoice:</span> {sale.invoiceNumber}</p>
-                {sale.customerName && (
-                  <p><span className="font-semibold text-slate-800 dark:text-slate-200">Customer:</span> {sale.customerName} ({sale.customerPhone || 'N/A'})</p>
-                )}
-              </div>
-              <div className="text-right">
-                <p>{new Date(sale.dateTime).toLocaleDateString()}</p>
-                <p>{new Date(sale.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-              </div>
-            </div>
-
-            {/* Itemized Table */}
-            <div className="py-3 border-b border-dashed border-slate-300 dark:border-slate-600">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-xs">
-                    <th className="pb-1 font-semibold">Item</th>
-                    <th className="pb-1 text-center font-semibold">Qty</th>
-                    <th className="pb-1 text-right font-semibold">Price</th>
-                    <th className="pb-1 text-right font-semibold">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                  {sale.items.map((item, i) => (
-                    <tr key={i} className="text-xs">
-                      <td className="py-1.5 pr-1 font-medium text-slate-800 dark:text-slate-200 max-w-[120px] truncate">
-                        {item.productName}
-                      </td>
-                      <td className="py-1.5 text-center">{item.quantity}</td>
-                      <td className="py-1.5 text-right">{currency}{item.unitSellingPrice}</td>
-                      <td className="py-1.5 text-right font-semibold">{currency}{item.totalPrice}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Calculation Totals */}
-            <div className="py-3 space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>{currency}{sale.subtotal}</span>
-              </div>
-              {sale.discountAmount > 0 && (
-                <div className="flex justify-between text-emerald-600 font-medium">
-                  <span>Discount</span>
-                  <span>-{currency}{sale.discountAmount}</span>
+            {printFormat === 'thermal' ? (
+              /* --- FORMAT TICKET DE CAISSE THERMIQUE 80MM --- */
+              <div className="space-y-3.5">
+                {/* En-tête Boutique */}
+                <div className="text-center pb-3 border-b border-dashed border-slate-300">
+                  <div className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#F6F1E7] text-[#D85C3A] mb-1.5 no-print">
+                    <Store className="w-5 h-5" />
+                  </div>
+                  <h2 className="font-bold text-base text-slate-900 uppercase tracking-wide leading-tight">
+                    {settings.shopName}
+                  </h2>
+                  <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">{settings.address}</p>
+                  <div className="mt-1 flex flex-wrap justify-center items-center gap-x-2 text-[10px] text-slate-500 font-medium">
+                    {settings.phone && <span>Tél : <strong className="text-slate-700">{settings.phone}</strong></span>}
+                    {settings.gstNumber && <span>• IFU : <strong className="text-slate-700">{settings.gstNumber}</strong></span>}
+                  </div>
                 </div>
-              )}
-              {sale.taxAmount > 0 && (
-                <div className="flex justify-between">
-                  <span>GST / Tax ({sale.taxPercent}%)</span>
-                  <span>{currency}{sale.taxAmount.toFixed(2)}</span>
+
+                {/* Métadonnées Facture & Date */}
+                <div className="py-1 border-b border-dashed border-slate-300 text-[11px] text-slate-600 space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Ticket N° :</span>
+                    <span className="font-bold text-slate-900 font-mono tracking-wider">{sale.invoiceNumber}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Date & Heure :</span>
+                    <span className="text-slate-800 font-medium">
+                      {formatDateFR(sale.dateTime)} • {new Date(sale.dateTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Client :</span>
+                    <span className="font-semibold text-slate-800 truncate max-w-[200px]">
+                      {sale.customerName ? `${sale.customerName}${sale.customerPhone ? ` (${sale.customerPhone})` : ''}` : 'Client de passage'}
+                    </span>
+                  </div>
                 </div>
-              )}
-              <div className="flex justify-between text-sm font-bold text-slate-900 dark:text-slate-100 pt-1 border-t border-slate-200 dark:border-slate-700">
-                <span>Total Amount</span>
-                <span>{currency}{sale.totalAmount}</span>
+
+                {/* Liste des Articles Épurée & Alignée */}
+                <div className="py-1 border-b border-dashed border-slate-300 space-y-2">
+                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-0.5">
+                    <span>Désignation / Qté x P.U</span>
+                    <span>Montant</span>
+                  </div>
+                  <div className="space-y-2">
+                    {sale.items.map((item, i) => (
+                      <div key={i} className="text-xs">
+                        <div className="font-bold text-slate-900 leading-tight">
+                          {item.productName}
+                        </div>
+                        <div className="flex justify-between items-baseline text-[11px] text-slate-600 mt-0.5">
+                          <span className="font-mono text-slate-500">
+                            {item.quantity} × {formatFCFA(item.unitSellingPrice, currency)}
+                          </span>
+                          <span className="font-bold text-slate-900 font-mono-data">
+                            {formatFCFA(item.totalPrice, currency)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Calculs Financiers */}
+                <div className="py-1 space-y-1.5 text-xs text-slate-700">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Sous-total ({sale.items.reduce((acc, it) => acc + it.quantity, 0)} art.)</span>
+                    <span className="font-mono-data font-medium text-slate-800">{formatFCFA(sale.subtotal, currency)}</span>
+                  </div>
+
+                  {sale.discountAmount > 0 && (
+                    <div className="flex justify-between items-center text-[#D85C3A]">
+                      <span>Remise accordée</span>
+                      <span className="font-mono-data font-bold">-{formatFCFA(sale.discountAmount, currency)}</span>
+                    </div>
+                  )}
+
+                  {sale.taxAmount > 0 && (
+                    <div className="flex justify-between items-center text-slate-600">
+                      <span>TVA légale ({sale.taxPercent}%)</span>
+                      <span className="font-mono-data font-medium">{formatFCFA(sale.taxAmount, currency)}</span>
+                    </div>
+                  )}
+
+                  {/* Grand Total Net à Payer */}
+                  <div className="mt-2 py-2 px-3 bg-[#FAF7F2] border-y-2 border-slate-900 flex justify-between items-baseline">
+                    <span className="font-black text-xs text-slate-900 tracking-wider uppercase">
+                      NET À PAYER
+                    </span>
+                    <span className="font-black text-base text-slate-900 font-mono-data tracking-tight">
+                      {formatFCFA(sale.totalAmount, currency)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Règlement & Rendu Monnaie */}
+                <div className="p-2.5 rounded-xl bg-[#F6F1E7] text-[11px] text-slate-700 space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Règlement :</span>
+                    <span className="font-bold text-slate-900">{getPaymentModeLabel(sale.paymentMode)}</span>
+                  </div>
+                  {sale.paymentMode === 'Cash' && sale.receivedAmount > 0 && (
+                    <>
+                      <div className="flex justify-between items-center text-slate-600">
+                        <span>Montant versé :</span>
+                        <span className="font-mono-data">{formatFCFA(sale.receivedAmount, currency)}</span>
+                      </div>
+                      <div className="flex justify-between items-center font-bold text-[#123F46] pt-0.5 border-t border-slate-200/60">
+                        <span>Monnaie rendue :</span>
+                        <span className="font-mono-data">{formatFCFA(sale.changeAmount, currency)}</span>
+                      </div>
+                    </>
+                  )}
+                  {sale.paymentMode === 'UPI' && (
+                    <div className="flex items-center gap-1.5 text-[#123F46] font-bold text-[10px] pt-0.5">
+                      <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                      <span>Règlement Mobile Money validé</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Code-barres de certification */}
+                <div className="pt-2 text-center border-t border-dashed border-slate-300">
+                  <div className="flex justify-center items-center gap-[2px] h-9 mb-1 text-slate-800">
+                    {/* Simulated barcode SVG stripes */}
+                    <div className="w-[2px] h-full bg-slate-900"></div>
+                    <div className="w-[1px] h-full bg-white"></div>
+                    <div className="w-[3px] h-full bg-slate-900"></div>
+                    <div className="w-[2px] h-full bg-white"></div>
+                    <div className="w-[1px] h-full bg-slate-900"></div>
+                    <div className="w-[3px] h-full bg-white"></div>
+                    <div className="w-[2px] h-full bg-slate-900"></div>
+                    <div className="w-[1px] h-full bg-white"></div>
+                    <div className="w-[4px] h-full bg-slate-900"></div>
+                    <div className="w-[2px] h-full bg-white"></div>
+                    <div className="w-[2px] h-full bg-slate-900"></div>
+                    <div className="w-[1px] h-full bg-white"></div>
+                    <div className="w-[3px] h-full bg-slate-900"></div>
+                    <div className="w-[2px] h-full bg-white"></div>
+                    <div className="w-[1px] h-full bg-slate-900"></div>
+                    <div className="w-[3px] h-full bg-white"></div>
+                    <div className="w-[2px] h-full bg-slate-900"></div>
+                    <div className="w-[4px] h-full bg-slate-900"></div>
+                    <div className="w-[1px] h-full bg-white"></div>
+                    <div className="w-[2px] h-full bg-slate-900"></div>
+                    <div className="w-[3px] h-full bg-white"></div>
+                    <div className="w-[1px] h-full bg-slate-900"></div>
+                    <div className="w-[2px] h-full bg-white"></div>
+                    <div className="w-[3px] h-full bg-slate-900"></div>
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-mono tracking-widest">{sale.invoiceNumber}</div>
+                </div>
+
+                {/* Bas de ticket */}
+                <div className="text-center pt-1 text-[10px] text-slate-500 space-y-0.5">
+                  <p className="font-bold text-slate-700">*** MERCI DE VOTRE VISITE ! ***</p>
+                  <p className="text-slate-400 text-[9px]">Conservez ce ticket en cas d'échange sous 48h</p>
+                  <p className="text-slate-400 text-[9px] pt-1">AJOWANU POS • Système Certifié</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              /* --- FORMAT FACTURE COMMERCIALE A4 --- */
+              <div className="space-y-6">
+                {/* En-tête Facture A4 */}
+                <div className="flex justify-between items-start pb-6 border-b border-slate-200">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-[#D85C3A] text-white flex items-center justify-center font-bold">
+                        A
+                      </div>
+                      <h1 className="text-xl font-black text-slate-900">{settings.shopName}</h1>
+                    </div>
+                    <p className="text-xs text-slate-600 max-w-sm">{settings.address}</p>
+                    <p className="text-xs text-slate-600 mt-1">Tél : {settings.phone || 'Non renseigné'}</p>
+                    {settings.gstNumber && <p className="text-xs text-slate-600 font-medium">N° IFU : {settings.gstNumber}</p>}
+                  </div>
 
-            {/* Payment info */}
-            <div className="mt-2 p-2 rounded-lg bg-slate-100 dark:bg-slate-700/50 text-xs flex justify-between items-center text-slate-700 dark:text-slate-300">
-              <span>Mode: <strong>{sale.paymentMode}</strong></span>
-              {sale.paymentMode === 'Cash' && sale.receivedAmount > 0 && (
-                <span>Recv: {currency}{sale.receivedAmount} | Change: <strong>{currency}{sale.changeAmount}</strong></span>
-              )}
-              {sale.paymentMode === 'UPI' && (
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
-                  ✓ PAID via Dynamic UPI
-                </span>
-              )}
-            </div>
-
-            {sale.paymentMode === 'UPI' && (
-              <div className="mt-1.5 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-[10px] space-y-0.5 text-emerald-900 dark:text-emerald-200">
-                <div className="flex justify-between font-semibold">
-                  <span>Merchant: {settings.merchantName || settings.shopName}</span>
-                  <span>Status: PAID</span>
+                  <div className="text-right bg-[#FAF7F2] p-4 rounded-xl border border-[#ECE5D7]">
+                    <span className="text-[11px] font-bold text-[#D85C3A] tracking-wider uppercase block mb-1">
+                      FACTURE CLIENT
+                    </span>
+                    <span className="text-lg font-black font-mono text-slate-900 block">
+                      {sale.invoiceNumber}
+                    </span>
+                    <span className="text-xs text-slate-500 mt-1 block">
+                      Date : {formatDateFR(sale.dateTime)}
+                    </span>
+                  </div>
                 </div>
-                {settings.upiId && <div className="font-mono">VPA: {settings.upiId}</div>}
-                <div className="italic text-[9px] text-emerald-700 dark:text-emerald-400">
-                  {settings.upiReceiptFooter || 'QR Payment Completed via Dynamic UPI'}
+
+                {/* Destinataire Client */}
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                      Facturé à :
+                    </span>
+                    <p className="font-bold text-slate-900 text-sm">{sale.customerName || 'Client Comptant'}</p>
+                    {sale.customerPhone && <p className="text-slate-600 mt-0.5">Contact : {sale.customerPhone}</p>}
+                    <p className="text-slate-500 text-[11px] mt-1">Modalité : Règlement immédiat</p>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                      Détails de caisse :
+                    </span>
+                    <p className="text-slate-700">Mode de paiement : <strong>{getPaymentModeLabel(sale.paymentMode)}</strong></p>
+                    <p className="text-slate-600 mt-0.5">Heure d'édition : {new Date(sale.dateTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+                    <p className="text-emerald-700 font-medium text-[11px] mt-1">Statut : Facture acquittée</p>
+                  </div>
+                </div>
+
+                {/* Tableau comptable A4 */}
+                <div className="overflow-hidden rounded-xl border border-slate-200">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#FAF7F2] text-slate-700 font-bold border-b border-slate-200">
+                      <tr>
+                        <th className="py-2.5 px-3">N°</th>
+                        <th className="py-2.5 px-3">Désignation de l'Article</th>
+                        <th className="py-2.5 px-3 text-center">Quantité</th>
+                        <th className="py-2.5 px-3 text-right">Prix Unitaire</th>
+                        <th className="py-2.5 px-3 text-right">Total Net</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {sale.items.map((item, i) => (
+                        <tr key={i} className="hover:bg-slate-50/50">
+                          <td className="py-2 px-3 text-slate-400 font-mono">{i + 1}</td>
+                          <td className="py-2 px-3 font-semibold text-slate-900">{item.productName}</td>
+                          <td className="py-2 px-3 text-center font-mono">{item.quantity}</td>
+                          <td className="py-2 px-3 text-right font-mono-data">{formatFCFA(item.unitSellingPrice, currency)}</td>
+                          <td className="py-2 px-3 text-right font-bold font-mono-data text-slate-900">{formatFCFA(item.totalPrice, currency)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Synthèse Totaux & Signatures */}
+                <div className="grid grid-cols-2 gap-6 pt-2">
+                  <div className="text-xs text-slate-500 space-y-2">
+                    <p className="font-semibold text-slate-700">Conditions générales de vente :</p>
+                    <p className="text-[11px] leading-relaxed">
+                      Marchandise vendue certifiée conforme. Tout retour doit s'effectuer sous 48 heures ouvrables sur présentation de la présente facture.
+                    </p>
+                    <div className="pt-4 mt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
+                      <span>Signature & Cachet Magasin</span>
+                      <span>Signature Client</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between text-slate-600">
+                      <span>Sous-total HT</span>
+                      <span className="font-mono-data font-medium">{formatFCFA(sale.subtotal, currency)}</span>
+                    </div>
+                    {sale.discountAmount > 0 && (
+                      <div className="flex justify-between text-[#D85C3A] font-medium">
+                        <span>Remise commerciale</span>
+                        <span className="font-mono-data">-{formatFCFA(sale.discountAmount, currency)}</span>
+                      </div>
+                    )}
+                    {sale.taxAmount > 0 && (
+                      <div className="flex justify-between text-slate-600">
+                        <span>TVA ({sale.taxPercent}%)</span>
+                        <span className="font-mono-data font-medium">{formatFCFA(sale.taxAmount, currency)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center pt-2 border-t-2 border-slate-900 text-sm font-black text-slate-900">
+                      <span>TOTAL NET À PAYER</span>
+                      <span className="font-mono-data text-[#D85C3A] text-base">{formatFCFA(sale.totalAmount, currency)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pied de page A4 */}
+                <div className="text-center pt-6 border-t border-slate-200 text-[11px] text-slate-400">
+                  AJOWANU — Plateforme de Gestion Commerciale • {settings.shopName} • IFU : {settings.gstNumber || '3202100000000'}
                 </div>
               </div>
             )}
-
-            {/* Footer */}
-            <div className="text-center mt-4 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-              <p>*** Thank You For Shopping With Us! ***</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">Powered by Offline POS System</p>
-            </div>
           </div>
         </div>
 
         {/* Modal Action Buttons */}
-        <div className="no-print p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
-          <div className="text-xs text-slate-500 dark:text-slate-400">
-            Invoice automatically stored in local SQLite database.
+        <div className="no-print p-4 bg-[#F6F1E7] border-t border-[#ECE5D7] flex flex-wrap items-center justify-between gap-3">
+          <div className="text-xs text-slate-500">
+            Facture enregistrée dans la base locale sécurisée.
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handleDownloadPDF}
-              className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-xl font-medium text-sm flex items-center gap-1.5 transition"
+              className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-xl font-medium text-sm flex items-center gap-1.5 transition cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              Save PDF
+              <span>Enregistrer PDF</span>
             </button>
 
             <button
               onClick={handlePrint}
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium text-sm flex items-center gap-1.5 shadow-md hover:shadow-lg transition"
+              className="px-5 py-2 bg-[#D85C3A] hover:bg-[#C24B2B] text-white rounded-xl font-medium text-sm flex items-center gap-1.5 shadow-sm transition cursor-pointer"
             >
               <Printer className="w-4 h-4" />
-              Print Receipt
+              <span>Imprimer le Reçu</span>
             </button>
           </div>
         </div>
 
       </div>
 
-      {/* Printing / PDF Failure Error Dialog */}
       {printError && (
-        <div className="fixed inset-0 z-60 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-md w-full border border-rose-300 dark:border-rose-800 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-150">
-            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+        <div className="fixed inset-0 z-60 bg-[#111827]/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-rose-200 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-150">
+            <div className="flex items-center gap-3 text-rose-600">
               <AlertCircle className="w-7 h-7 shrink-0" />
-              <h4 className="text-base font-bold">Print Operation Notice</h4>
+              <h4 className="text-base font-bold">Information d'impression</h4>
             </div>
-            <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+            <p className="text-xs text-slate-700 leading-relaxed font-medium">
               {printError}
             </p>
-            <div className="p-3 bg-slate-100 dark:bg-slate-900/80 rounded-xl text-[11px] text-slate-500 font-mono leading-normal">
-              Tip: You can use the "Save PDF" button to save or print the receipt file directly.
+            <div className="p-3 bg-[#F6F1E7] rounded-xl text-[11px] text-slate-600 font-mono leading-normal">
+              Astuce : Vous pouvez utiliser le bouton "Enregistrer PDF" pour télécharger la facture.
             </div>
             <div className="flex justify-end pt-1">
               <button
                 onClick={() => setPrintError(null)}
-                className="px-4 py-2 bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 rounded-xl text-xs font-bold hover:bg-slate-700 transition"
+                className="px-4 py-2 bg-[#111827] text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition cursor-pointer"
               >
-                Dismiss
+                Fermer
               </button>
             </div>
           </div>

@@ -1,10 +1,10 @@
 import QRCode from 'qrcode';
 import { ShopSettings } from '../types';
 
-export interface UPIPaymentConfig {
-  enableUpiPayments: boolean;
-  merchantName: string;
-  upiId: string;
+export interface MobilePaymentConfig {
+  enableUpiPayments?: boolean;
+  merchantName?: string;
+  upiId?: string; // Merchant ID / Mobile Money phone / Code Marchand
   defaultPaymentNote?: string;
   currency?: string;
   receiptFooter?: string;
@@ -23,13 +23,17 @@ export interface PaymentProvider {
   id: string;
   name: string;
   isAvailable(): boolean;
-  generateUPIString(request: PaymentRequest): string;
+  generatePaymentString(request: PaymentRequest): string;
   generateQRCodeDataUrl(request: PaymentRequest): Promise<string>;
 }
 
-export class UPIPaymentService implements PaymentProvider {
-  public id = 'dynamic-upi-offline';
-  public name = 'Dynamic UPI (Offline NPCI Specification)';
+/**
+ * Service de paiement Mobile Money & QR Hors-ligne AJOWANU
+ * Compatible avec les numéros marchands MTN MoMo, Moov Money, Celtiis et QR de caisse
+ */
+export class MobilePaymentService implements PaymentProvider {
+  public id = 'ajowanu-mobile-qr';
+  public name = 'Paiement Mobile Money & QR AJOWANU';
   private settings: ShopSettings;
 
   constructor(settings: ShopSettings) {
@@ -41,83 +45,84 @@ export class UPIPaymentService implements PaymentProvider {
   }
 
   /**
-   * Check if UPI payments are configured and enabled
+   * Vérifie si le paiement Mobile Money / QR est configuré et activé
    */
   public isAvailable(): boolean {
     const isEnabled = this.settings.enableUpiPayments !== false;
-    const hasUpiId = Boolean(this.settings.upiId && this.settings.upiId.trim().length > 3 && this.settings.upiId.includes('@'));
-    return isEnabled && hasUpiId;
+    const hasMerchantId = Boolean(this.settings.upiId && this.settings.upiId.trim().length >= 3);
+    return isEnabled && hasMerchantId;
   }
 
   /**
-   * Validate UPI ID format (standard VPA format: username@bank)
+   * Valide le format de l'identifiant marchand (Numéro de téléphone Bénin, Code Marchand ou ID)
    */
-  public static validateUPIId(upiId: string): { valid: boolean; error?: string } {
-    if (!upiId || !upiId.trim()) {
-      return { valid: false, error: 'UPI ID cannot be empty.' };
+  public static validateMerchantId(merchantId: string): { valid: boolean; error?: string } {
+    if (!merchantId || !merchantId.trim()) {
+      return { valid: false, error: 'Le numéro ou code marchand ne peut pas être vide.' };
     }
-    const trimmed = upiId.trim();
-    if (!trimmed.includes('@')) {
-      return { valid: false, error: 'UPI ID must contain "@" (e.g., shopname@okaxis).' };
-    }
-    const parts = trimmed.split('@');
-    if (parts.length !== 2 || !parts[0] || !parts[1]) {
-      return { valid: false, error: 'Invalid UPI VPA format. Example: name@bank' };
+    const trimmed = merchantId.trim();
+    if (trimmed.length < 3) {
+      return { valid: false, error: 'Identifiant marchand trop court (minimum 3 caractères).' };
     }
     return { valid: true };
   }
 
   /**
-   * Build standard NPCI compliant UPI payment URI string
-   * Format: upi://pay?pa={UPI_ID}&pn={NAME}&am={AMOUNT}&cu=INR&tn={NOTE}
+   * Rétrocompatibilité avec l'ancienne signature
    */
-  public generateUPIString(request: PaymentRequest): string {
-    const upiId = (this.settings.upiId || '').trim();
-    const merchantName = (this.settings.merchantName || this.settings.shopName || 'Grocery Store').trim();
-    const currency = request.currency || 'INR';
-    const amountStr = request.amount.toFixed(2);
-    
-    const rawNote = request.note || this.settings.defaultPaymentNote || `Invoice ${request.invoiceNumber}`;
-    const cleanNote = rawNote.replace(/[^\w\s-]/gi, '').substring(0, 50);
-
-    const params = new URLSearchParams();
-    params.set('pa', upiId);
-    params.set('pn', merchantName);
-    params.set('am', amountStr);
-    params.set('cu', currency);
-    params.set('tn', cleanNote);
-
-    return `upi://pay?${params.toString()}`;
+  public static validateUPIId(upiId: string): { valid: boolean; error?: string } {
+    return this.validateMerchantId(upiId);
   }
 
   /**
-   * Generate high-quality offline Data URL QR code
+   * Construit la chaîne de paiement QR encodée (Format Standard Mobile Money / Facture AJOWANU)
+   */
+  public generatePaymentString(request: PaymentRequest): string {
+    const merchantId = (this.settings.upiId || '').trim();
+    const merchantName = (this.settings.merchantName || this.settings.shopName || 'Boutique AJOWANU').trim();
+    const currency = request.currency || this.settings.currencySymbol || 'FCFA';
+    const amount = Math.round(request.amount);
+    const note = request.note || this.settings.defaultPaymentNote || `Facture ${request.invoiceNumber}`;
+
+    // Payload standard pour paiement QR marchand (lisible par tout scanner de caisse ou application mobile)
+    return `AJOWANU:PAY?merchant=${encodeURIComponent(merchantId)}&name=${encodeURIComponent(merchantName)}&amount=${amount}&currency=${encodeURIComponent(currency)}&ref=${encodeURIComponent(request.invoiceNumber)}&note=${encodeURIComponent(note)}`;
+  }
+
+  /**
+   * Alias pour compatibilité
+   */
+  public generateUPIString(request: PaymentRequest): string {
+    return this.generatePaymentString(request);
+  }
+
+  /**
+   * Génération du QR Code autonome haute résolution
    */
   public async generateQRCodeDataUrl(request: PaymentRequest): Promise<string> {
-    const upiUri = this.generateUPIString(request);
+    const qrData = this.generatePaymentString(request);
     try {
-      const dataUrl = await QRCode.toDataURL(upiUri, {
+      const dataUrl = await QRCode.toDataURL(qrData, {
         errorCorrectionLevel: 'H',
         margin: 2,
         width: 360,
         color: {
-          dark: '#000000',
+          dark: '#111827', // Obsidian Night AJOWANU
           light: '#FFFFFF',
         },
       });
       return dataUrl;
     } catch (err) {
-      console.error('Offline QR Code generation error:', err);
-      throw new Error('Failed to render offline QR Code');
+      console.error('Erreur lors de la génération du QR Code:', err);
+      throw new Error('Échec du rendu du QR Code de paiement');
     }
   }
 }
 
-/**
- * Factory for Payment Services (Future-ready architecture for PhonePe, Razorpay, Cashfree, BharatPe)
- */
+// Alias de classe pour compatibilité absolue sans refactor risqué
+export const UPIPaymentService = MobilePaymentService;
+
 export class PaymentServiceFactory {
-  public static getUPIProvider(settings: ShopSettings): UPIPaymentService {
-    return new UPIPaymentService(settings);
+  public static getUPIProvider(settings: ShopSettings): MobilePaymentService {
+    return new MobilePaymentService(settings);
   }
 }

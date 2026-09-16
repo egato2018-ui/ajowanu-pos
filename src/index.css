@@ -4,13 +4,118 @@
 
 :root, html {
   color-scheme: light !important;
+  --ajowanu-obsidian: #111827;
+  --ajowanu-clay: #D85C3A;
+  --ajowanu-clay-hover: #C24B2B;
+  --ajowanu-clay-subtle: #FDF3F0;
+  --ajowanu-mango: #F2C14E;
+  --ajowanu-mango-subtle: #FEF9EB;
+  --ajowanu-sand: #F6F1E7;
+  --ajowanu-sand-light: #FAF8F5;
+  --ajowanu-sand-dark: #ECE5D7;
+  --ajowanu-teal: #123F46;
+  --ajowanu-teal-light: #1A545D;
+  --ajowanu-teal-subtle: #E8F1F2;
+  --ajowanu-white: #FFFFFF;
 }
 
 @layer base {
   body {
-    @apply bg-slate-100 text-slate-800 antialiased select-none;
+    background-color: var(--ajowanu-sand-light);
+    color: var(--ajowanu-obsidian);
+    font-family: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    @apply antialiased select-none;
   }
+
+  h1, h2, h3, h4, h5, h6, button, input, select, textarea, label {
+    font-family: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* Numeric & Quantitative elements using IBM Plex Sans */
+.font-data, .font-mono-data, .font-num {
+  font-family: 'IBM Plex Sans', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+/* AJOWANU Tactile Surfaces & Borders */
+.ajowanu-surface {
+  background-color: #FFFFFF;
+  border: 1px solid #ECE5D7;
+  border-radius: 1rem;
+}
+
+.ajowanu-surface-subtle {
+  background-color: #FAF8F5;
+  border: 1px solid #ECE5D7;
+}
+
+.ajowanu-card-hover {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.ajowanu-card-hover:hover {
+  border-color: #D85C3A;
+  box-shadow: 0 4px 14px -2px rgba(18, 63, 70, 0.06), 0 2px 6px -1px rgba(216, 92, 58, 0.06);
+  transform: translateY(-1px);
+}
+
+/* AJOWANU Brand Utility Classes */
+.bg-ajowanu-clay {
+  background-color: var(--ajowanu-clay);
+}
+
+.hover\:bg-ajowanu-clay-hover:hover {
+  background-color: var(--ajowanu-clay-hover);
+}
+
+.text-ajowanu-clay {
+  color: var(--ajowanu-clay);
+}
+
+.border-ajowanu-clay {
+  border-color: var(--ajowanu-clay);
+}
+
+.bg-ajowanu-teal {
+  background-color: var(--ajowanu-teal);
+}
+
+.text-ajowanu-teal {
+  color: var(--ajowanu-teal);
+}
+
+.bg-ajowanu-sand {
+  background-color: var(--ajowanu-sand);
+}
+
+.bg-ajowanu-mango {
+  background-color: var(--ajowanu-mango);
+}
+
+.text-ajowanu-mango {
+  color: #B47805;
+}
+
+.bg-ajowanu-obsidian {
+  background-color: var(--ajowanu-obsidian);
+}
+
+.btn-ajowanu-primary {
+  background-color: var(--ajowanu-clay);
+  color: #FFFFFF;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-ajowanu-primary:hover {
+  background-color: var(--ajowanu-clay-hover);
+  box-shadow: 0 4px 12px rgba(216, 92, 58, 0.22);
+  transform: translateY(-0.5px);
+}
+
+.btn-ajowanu-primary:active {
+  transform: translateY(0.5px);
 }
 
 /* Print specific styles for Receipts and Invoices */
