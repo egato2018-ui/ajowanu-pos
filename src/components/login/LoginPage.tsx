@@ -16,7 +16,9 @@ import {
   Cpu,
   Database,
   CheckCircle2,
-  Delete
+  Delete,
+  MapPin,
+  Phone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LoginAmbientBackground } from './LoginAmbientBackground';
@@ -233,15 +235,47 @@ export const LoginPage: React.FC<LoginPageProps> = ({ settings, onLoginSuccess }
           </div>
         </div>
 
-        {/* Store Active Context Pill */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 backdrop-blur-xs border border-[#ECE5D7] shadow-2xs text-xs text-slate-600">
-          <Store className="w-3.5 h-3.5 text-[#123F46]" />
-          <span className="font-semibold text-slate-900">{settings.shopName || 'Boutique AJOWANU'}</span>
-          <span className="text-slate-300">•</span>
-          <span className="flex items-center gap-1 text-[11px] text-emerald-700 font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            {settings.shopAddress?.split(',')[0] || 'Cotonou'}
-          </span>
+        {/* Store Active Context Banner - Mieux mis en valeur */}
+        <div className="w-full max-w-[440px] px-3.5 py-2 rounded-2xl bg-white/80 backdrop-blur-md border border-[#ECE5D7] shadow-sm flex items-center justify-between gap-3 text-left">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-[#123F46]/10 border border-[#123F46]/15 text-[#123F46] flex items-center justify-center shrink-0">
+              <Store className="w-4 h-4 text-[#123F46]" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-black text-slate-900 tracking-tight truncate">
+                  {settings.shopName || 'Boutique AJOWANU'}
+                </span>
+                <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                  En Ligne
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                <span className="flex items-center gap-1 truncate">
+                  <MapPin className="w-3 h-3 text-[#D85C3A] shrink-0" />
+                  <span className="truncate">{settings.shopAddress || 'Cotonou, Bénin'}</span>
+                </span>
+                {settings.shopPhone && (
+                  <>
+                    <span className="text-slate-300">•</span>
+                    <span className="hidden sm:flex items-center gap-1 text-slate-500 shrink-0">
+                      <Phone className="w-2.5 h-2.5 text-slate-400" />
+                      {settings.shopPhone}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end shrink-0 pl-2 border-l border-[#ECE5D7]/80">
+            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+              Terminal
+            </span>
+            <span className="text-[11px] font-bold font-mono text-[#123F46]">
+              POS #01
+            </span>
+          </div>
         </div>
       </motion.div>
 
