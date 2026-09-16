@@ -814,6 +814,7 @@ export const INITIAL_SAMPLE_EMPLOYEES: Employee[] = [
     joiningDate: '2023-01-01',
     role: 'Owner',
     pin: '1234',
+    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80',
     status: 'Active',
   },
   {
@@ -825,6 +826,7 @@ export const INITIAL_SAMPLE_EMPLOYEES: Employee[] = [
     joiningDate: '2024-03-15',
     role: 'Cashier',
     pin: '1111',
+    photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80',
     status: 'Active',
   },
   {
@@ -836,6 +838,7 @@ export const INITIAL_SAMPLE_EMPLOYEES: Employee[] = [
     joiningDate: '2024-01-10',
     role: 'Inventory Staff',
     pin: '2222',
+    photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80',
     status: 'Active',
   }
 ];
@@ -1056,6 +1059,27 @@ class SQLiteStorageEngine {
     this.purchaseOrders = this.loadData(STORAGE_KEYS.PURCHASE_ORDERS, []);
     this.expenses = this.loadData(STORAGE_KEYS.EXPENSES, INITIAL_SAMPLE_EXPENSES);
     this.employees = this.loadData(STORAGE_KEYS.EMPLOYEES, INITIAL_SAMPLE_EMPLOYEES);
+
+    // Auto-hydrate default employee photos if missing from stored data
+    let empPhotosUpdated = false;
+    this.employees = this.employees.map(emp => {
+      if (!emp.photoUrl || emp.photoUrl.trim() === '') {
+        if (emp.name.toLowerCase().includes('koffi')) {
+          empPhotosUpdated = true;
+          return { ...emp, photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80' };
+        } else if (emp.name.toLowerCase().includes('amina')) {
+          empPhotosUpdated = true;
+          return { ...emp, photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80' };
+        } else if (emp.name.toLowerCase().includes('pascal')) {
+          empPhotosUpdated = true;
+          return { ...emp, photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80' };
+        }
+      }
+      return emp;
+    });
+    if (empPhotosUpdated) {
+      this.saveData(STORAGE_KEYS.EMPLOYEES, this.employees);
+    }
     this.attendance = this.loadData(STORAGE_KEYS.ATTENDANCE, []);
     this.heldBills = this.loadData(STORAGE_KEYS.HELD_BILLS, []);
     this.returns = this.loadData(STORAGE_KEYS.RETURNS, []);

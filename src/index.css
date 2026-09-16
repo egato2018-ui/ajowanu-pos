@@ -2,8 +2,16 @@
 
 @variant dark (.dark &);
 
+@theme {
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Sans', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-data: 'IBM Plex Sans', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 :root, html {
   color-scheme: light !important;
+  font-family: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --ajowanu-obsidian: #111827;
   --ajowanu-clay: #D85C3A;
   --ajowanu-clay-hover: #C24B2B;
@@ -28,15 +36,22 @@
     @apply antialiased select-none;
   }
 
-  h1, h2, h3, h4, h5, h6, button, input, select, textarea, label {
+  h1, h2, h3, h4, h5, h6, button, input, select, textarea, label, p, span, div {
     font-family: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
-/* Numeric & Quantitative elements using IBM Plex Sans */
-.font-data, .font-mono-data, .font-num {
+/* Strict Numeric & Quantitative elements using IBM Plex Sans */
+.font-data, 
+.font-mono-data, 
+.font-num, 
+.font-mono,
+[data-font="mono"],
+.recharts-cartesian-axis-tick-value,
+.recharts-tooltip-item,
+.recharts-default-tooltip {
   font-family: 'IBM Plex Sans', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-  font-feature-settings: "tnum" 1, "zero" 1;
+  font-feature-settings: "tnum" 1, "zero" 1 !important;
 }
 
 /* AJOWANU Tactile Surfaces & Borders */

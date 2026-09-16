@@ -10,12 +10,15 @@ import {
   Sale, 
   IncomingStockLog, 
   CartItem,
-  DashboardMetrics 
+  DashboardMetrics,
+  Employee 
 } from './types';
 import { sqliteDB } from './db/sqliteStorage';
+import { motion } from 'motion/react';
 
 // Components
-import { NavbarHeader } from './components/NavbarHeader';
+import { TopBar } from './components/topbar/TopBar';
+import { LoginPage } from './components/login/LoginPage';
 import { Sidebar } from './components/Sidebar';
 import { FirstTimeSetupModal } from './components/FirstTimeSetupModal';
 import { DashboardView } from './components/DashboardView';
@@ -77,6 +80,32 @@ export default function App() {
   const [isLabelDesignerOpen, setIsLabelDesignerOpen] = useState(false);
   const [settingsResetModal, setSettingsResetModal] = useState<'clear' | 'sample' | null>(null);
   const [settingsToast, setSettingsToast] = useState<string | null>(null);
+
+  // User Session & Authentication State
+  const [currentUser, setCurrentUser] = useState<Employee | null>(() => sqliteDB.getCurrentUser());
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    const isLoggedOut = sessionStorage.getItem('ajowanu_session_logged_out');
+    return isLoggedOut !== 'true';
+  });
+
+  const handleLogout = () => {
+    sqliteDB.setCurrentUser(null);
+    setCurrentUser(null);
+    sessionStorage.setItem('ajowanu_session_logged_out', 'true');
+    setIsAuthenticated(false);
+  };
+
+  const handleLoginSuccess = (employee: Employee) => {
+    sqliteDB.setCurrentUser(employee);
+    setCurrentUser(employee);
+    sessionStorage.removeItem('ajowanu_session_logged_out');
+    setIsAuthenticated(true);
+  };
+
+  const handleUserUpdated = (updatedUser: Employee) => {
+    setCurrentUser(updatedUser);
+    sqliteDB.setCurrentUser(updatedUser);
+  };
 
   // Keyboard Shortcuts (Ctrl+K for Search, F2 for POS)
   useEffect(() => {
@@ -219,17 +248,33 @@ export default function App() {
   const metrics: DashboardMetrics = sqliteDB.getMetrics();
   const lowStockProducts = products.filter(p => p.quantity <= (p.minStockLevel || settings.lowStockThreshold));
 
+  if (!isAuthenticated) {
+    return (
+      <LoginPage
+        settings={settings}
+        onLoginSuccess={handleLoginSuccess}
+      />
+    );
+  }
+
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#F6F4EE] text-slate-800 flex flex-col font-sans select-none antialiased">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="h-screen w-screen overflow-hidden bg-[#F6F4EE] text-slate-800 flex flex-col font-sans select-none antialiased"
+    >
       
       {/* Top Application Navbar Titlebar */}
-      <NavbarHeader
+      <TopBar
         settings={settings}
-        onUpdateSettings={handleUpdateSettings}
-        onNavigate={setActiveTab}
         activeTab={activeTab}
+        onNavigate={setActiveTab}
         onOpenSearch={() => setIsSearchOpen(true)}
         onLockTerminal={() => setIsTerminalLocked(true)}
+        onLogout={handleLogout}
+        currentUser={currentUser}
+        onUserUpdated={handleUserUpdated}
       />
 
       <div className="flex-1 flex min-h-0 overflow-hidden">
@@ -605,7 +650,10 @@ export default function App() {
       {/* Terminal PIN Lock Screen */}
       {isTerminalLocked && (
         <PinLockModal
-          onUnlock={() => setIsTerminalLocked(false)}
+          onUnlock={() => {
+            setIsTerminalLocked(false);
+            setCurrentUser(sqliteDB.getCurrentUser());
+          }}
         />
       )}
 
@@ -634,6 +682,6 @@ export default function App() {
         }}
       />
 
-    </div>
+    </motion.div>
   );
 }

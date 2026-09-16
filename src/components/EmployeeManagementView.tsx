@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Employee, EmployeeRole, ShopSettings } from '../types';
 import { sqliteDB } from '../db/sqliteStorage';
 import { formatFCFA, formatDateFR } from '../utils/formatters';
@@ -12,7 +12,9 @@ import {
   Calendar, 
   BadgeCheck,
   ShieldAlert,
-  Lock
+  Lock,
+  Camera,
+  Check
 } from 'lucide-react';
 import { PageHeader } from './ui/PageHeader';
 import { Button } from './ui/Button';
@@ -22,12 +24,20 @@ interface EmployeeManagementViewProps {
   settings: ShopSettings;
 }
 
+const PRESET_AVATARS = [
+  { label: 'Homme 1', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80' },
+  { label: 'Femme 1', url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80' },
+  { label: 'Homme 2', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80' },
+  { label: 'Femme 2', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80' },
+];
+
 export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({ settings }) => {
   const [employees, setEmployees] = useState<Employee[]>(() => sqliteDB.getEmployees());
   const currentUser = sqliteDB.getCurrentUser();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Partial<Employee> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currency = settings.currencySymbol || 'FCFA';
 
@@ -45,11 +55,25 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({ 
       phone: editingEmployee.phone,
       role: editingEmployee.role || 'Cashier',
       pin: editingEmployee.pin,
+      photoUrl: editingEmployee.photoUrl || undefined,
     });
 
     setShowAddModal(false);
     setEditingEmployee(null);
     refreshEmployees();
+  };
+
+  const handlePhotoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setEditingEmployee(prev => ({ ...prev, photoUrl: reader.result as string }));
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSwitchUser = (emp: Employee) => {
@@ -90,9 +114,18 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({ 
       {/* Active Logged-in Staff Banner */}
       <div className="bg-[#123F46] text-white p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm border border-[#0E3238]">
         <div className="flex items-center gap-4">
-          <div className="w-13 h-13 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center font-black text-xl text-[#F2C14E] shrink-0">
-            {currentUser?.name.charAt(0) || 'A'}
-          </div>
+          {currentUser?.photoUrl ? (
+            <img
+              src={currentUser.photoUrl}
+              alt={currentUser.name}
+              referrerPolicy="no-referrer"
+              className="w-13 h-13 rounded-2xl object-cover border-2 border-white/25 shadow-xs shrink-0"
+            />
+          ) : (
+            <div className="w-13 h-13 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center font-black text-xl text-[#F2C14E] shrink-0">
+              {currentUser?.name.charAt(0) || 'A'}
+            </div>
+          )}
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] uppercase tracking-wider font-extrabold bg-[#F2C14E] text-[#123F46] px-2.5 py-0.5 rounded-full">
@@ -126,21 +159,35 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({ 
               currentUser?.id === emp.id ? 'border-[#123F46] ring-2 ring-[#123F46]/15' : 'border-[#ECE5D7]'
             }`}
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="text-[10px] font-mono bg-[#FAF8F5] border border-[#ECE5D7] px-2 py-0.5 rounded-md text-slate-500">{emp.id}</span>
-                <h3 className="font-bold text-slate-900 text-base mt-1.5">{emp.name}</h3>
-                <div className="mt-1">
-                  <Badge 
-                    variant={
-                      emp.role === 'Owner' ? 'purple' :
-                      emp.role === 'Manager' ? 'indigo' :
-                      emp.role === 'Cashier' ? 'orange' : 'teal'
-                    }
-                    size="sm"
-                  >
-                    {roleLabels[emp.role] || emp.role}
-                  </Badge>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                {emp.photoUrl ? (
+                  <img
+                    src={emp.photoUrl}
+                    alt={emp.name}
+                    referrerPolicy="no-referrer"
+                    className="w-12 h-12 rounded-2xl object-cover border border-[#ECE5D7] shadow-xs shrink-0"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-2xl bg-[#123F46] text-white flex items-center justify-center font-bold text-lg shadow-xs shrink-0">
+                    {emp.name.charAt(0)}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <span className="text-[10px] font-mono bg-[#FAF8F5] border border-[#ECE5D7] px-2 py-0.5 rounded-md text-slate-500 font-bold">{emp.id}</span>
+                  <h3 className="font-bold text-slate-900 text-base mt-1 truncate leading-tight">{emp.name}</h3>
+                  <div className="mt-1">
+                    <Badge 
+                      variant={
+                        emp.role === 'Owner' ? 'purple' :
+                        emp.role === 'Manager' ? 'indigo' :
+                        emp.role === 'Cashier' ? 'orange' : 'teal'
+                      }
+                      size="sm"
+                    >
+                      {roleLabels[emp.role] || emp.role}
+                    </Badge>
+                  </div>
                 </div>
               </div>
 
@@ -149,7 +196,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({ 
                   setEditingEmployee(emp);
                   setShowAddModal(true);
                 }}
-                className="p-2 hover:bg-[#FAF8F5] text-slate-400 hover:text-slate-800 rounded-xl cursor-pointer transition border border-transparent hover:border-[#ECE5D7]"
+                className="p-2 hover:bg-[#FAF8F5] text-slate-400 hover:text-slate-800 rounded-xl cursor-pointer transition border border-transparent hover:border-[#ECE5D7] shrink-0"
                 title="Modifier"
               >
                 <Edit className="w-4 h-4" />
@@ -216,6 +263,80 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({ 
             </div>
 
             <form onSubmit={handleSaveEmployee} className="space-y-3.5 text-xs">
+              {/* Photo de Profil Section */}
+              <div className="p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#ECE5D7] space-y-2.5">
+                <label className="block font-bold text-slate-700">Photo de Profil de l'Employé</label>
+                
+                <div className="flex items-center gap-3">
+                  {editingEmployee?.photoUrl ? (
+                    <img 
+                      src={editingEmployee.photoUrl} 
+                      alt="Aperçu profil" 
+                      referrerPolicy="no-referrer"
+                      className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm shrink-0"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-2xl bg-[#123F46] text-white flex items-center justify-center font-bold text-xl shadow-xs shrink-0">
+                      {editingEmployee?.name ? editingEmployee.name.charAt(0) : '?'}
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5 min-w-0 flex-1">
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handlePhotoFileUpload} 
+                      accept="image/*" 
+                      className="hidden" 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-[#ECE5D7] rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs transition"
+                    >
+                      <Camera className="w-3.5 h-3.5 text-[#D85C3A]" />
+                      <span>Téléverser une photo</span>
+                    </button>
+                    <p className="text-[10px] text-slate-400 truncate">Format JPG, PNG ou WebP</p>
+                  </div>
+                </div>
+
+                {/* Preset Avatars */}
+                <div>
+                  <span className="text-[10px] text-slate-500 font-medium block mb-1">Ou choisir un modèle :</span>
+                  <div className="flex items-center gap-2">
+                    {PRESET_AVATARS.map((av, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setEditingEmployee(prev => ({ ...prev, photoUrl: av.url }))}
+                        className={`relative rounded-xl overflow-hidden border-2 transition cursor-pointer ${
+                          editingEmployee?.photoUrl === av.url ? 'border-[#D85C3A] ring-2 ring-[#D85C3A]/30' : 'border-transparent'
+                        }`}
+                      >
+                        <img src={av.url} alt={av.label} referrerPolicy="no-referrer" className="w-9 h-9 object-cover" />
+                        {editingEmployee?.photoUrl === av.url && (
+                          <div className="absolute inset-0 bg-[#D85C3A]/40 flex items-center justify-center text-white">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Direct Image URL input */}
+                <div>
+                  <input
+                    type="url"
+                    value={editingEmployee?.photoUrl || ''}
+                    onChange={e => setEditingEmployee(prev => ({ ...prev, photoUrl: e.target.value }))}
+                    placeholder="Ou collez l'URL d'une image web (https://...)"
+                    className="w-full px-3 py-1.5 text-[11px] rounded-xl border border-[#ECE5D7] bg-white text-slate-800 focus:outline-none focus:border-[#D85C3A]"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Nom et Prénom de l'employé *</label>
                 <input
